@@ -1,0 +1,1500 @@
+<!doctype html>
+<html lang="ru" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Сигнал · Серия 1</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter";
+        src: url("assets/fonts/Inter-Medium.otf") format("opentype");
+        font-weight: 500;
+      }
+      @font-face {
+        font-family: "Inter";
+        src: url("assets/fonts/Inter-Bold.otf") format("opentype");
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: "Inter";
+        src: url("assets/fonts/Inter-Black.otf") format("opentype");
+        font-weight: 900;
+      }
+      @font-face {
+        font-family: "Signal Mono";
+        src: url("assets/fonts/DejaVuSansMono-Bold.ttf") format("truetype");
+        font-weight: 700;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #05060a;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #05060a;
+        font-family: "Inter", sans-serif;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #05060a;
+      }
+      .stage {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .stage svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .mono {
+        font-family: "Signal Mono", monospace;
+        font-weight: 700;
+      }
+      /* Captions: overlay, inside the social-safe zone. */
+      .cap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1430px;
+        display: flex;
+        justify-content: center;
+        padding: 0 90px;
+        z-index: 20;
+      }
+      .cap p {
+        display: block;
+        max-width: 900px;
+        padding: 18px 30px;
+        background: rgba(5, 6, 10, 0.72);
+        color: #f3efe6;
+        font-weight: 700;
+        font-size: 52px;
+        line-height: 1.22;
+        letter-spacing: -0.01em;
+        text-align: center;
+      }
+      .cap p em {
+        font-style: normal;
+        color: #ff4b4b;
+      }
+      .cap.top {
+        top: 250px;
+      }
+      .cap.center {
+        top: 880px;
+      }
+      .cap.center p {
+        background: transparent;
+        font-size: 60px;
+      }
+      /* Title cards */
+      .title-wrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+      }
+      .glitch-title {
+        position: relative;
+        display: block;
+        width: 900px;
+        height: 190px;
+      }
+      .glitch-title span {
+        position: absolute;
+        inset: 0;
+        display: block;
+        text-align: center;
+        font-weight: 900;
+        font-size: 170px;
+        line-height: 190px;
+        letter-spacing: 0.06em;
+        color: #f3efe6;
+      }
+      .glitch-title .r {
+        color: #ff2d3a;
+        mix-blend-mode: screen;
+      }
+      .glitch-title .c {
+        color: #3fd2ff;
+        mix-blend-mode: screen;
+      }
+      .kicker {
+        display: block;
+        font-weight: 700;
+        font-size: 40px;
+        letter-spacing: 0.32em;
+        color: #c9c4ba;
+      }
+      .sub {
+        display: block;
+        font-weight: 500;
+        font-size: 40px;
+        color: #a8a397;
+        letter-spacing: 0.02em;
+      }
+      .next {
+        display: block;
+        margin-top: 70px;
+        padding: 20px 40px;
+        border: 3px solid #ff2d3a;
+        color: #ff4b4b;
+        font-weight: 900;
+        font-size: 46px;
+        letter-spacing: 0.12em;
+      }
+      /* Persistent film treatment above every scene */
+      #vignette {
+        position: absolute;
+        inset: 0;
+        z-index: 30;
+        pointer-events: none;
+        background: radial-gradient(
+          ellipse 75% 60% at 50% 45%,
+          rgba(0, 0, 0, 0) 55%,
+          rgba(0, 0, 0, 0.75) 100%
+        );
+      }
+      #grain {
+        position: absolute;
+        inset: 0;
+        z-index: 31;
+        width: 100%;
+        height: 100%;
+        opacity: 0.09;
+        pointer-events: none;
+      }
+      #scanlines {
+        position: absolute;
+        inset: 0;
+        z-index: 32;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.025) 0 2px,
+          rgba(0, 0, 0, 0) 2px 6px
+        );
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="90"
+      data-width="1080"
+      data-height="1920"
+    >
+      <audio
+        id="bed"
+        src="assets/audio/bed.wav"
+        data-start="0"
+        data-duration="90"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+
+      <!-- ============ S1 · HOOK: phone on the floor (0–9) ============ -->
+      <section id="s1" class="scene clip" data-start="0" data-duration="9" data-track-index="0">
+        <div id="s1-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="s1-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#bfe3ff" stop-opacity="0.55" />
+                <stop offset="1" stop-color="#bfe3ff" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="1080" height="1920" fill="#05060a" />
+            <rect y="1180" width="1080" height="740" fill="#0a0c12" />
+            <g id="s1-cam">
+              <ellipse
+                id="s1-glow-el"
+                cx="540"
+                cy="820"
+                rx="560"
+                ry="620"
+                fill="url(#s1-glow)"
+                opacity="0"
+              />
+              <rect x="372" y="520" width="336" height="620" rx="44" fill="#14161d" />
+              <rect
+                id="s1-screen"
+                x="392"
+                y="550"
+                width="296"
+                height="560"
+                rx="26"
+                fill="#0b0d12"
+              />
+              <g id="s1-msg" opacity="0">
+                <rect x="392" y="550" width="296" height="560" rx="26" fill="#eef4f8" />
+                <rect x="392" y="550" width="296" height="92" rx="26" fill="#d81f2a" />
+                <rect x="392" y="610" width="296" height="32" fill="#d81f2a" />
+                <text x="540" y="608" text-anchor="middle" class="mono" font-size="25" fill="#fff">
+                  ОПОВЕЩЕНИЕ
+                </text>
+                <text
+                  x="540"
+                  y="770"
+                  text-anchor="middle"
+                  font-family="Inter"
+                  font-weight="900"
+                  font-size="46"
+                  fill="#b0141d"
+                >
+                  НЕ
+                </text>
+                <text
+                  x="540"
+                  y="830"
+                  text-anchor="middle"
+                  font-family="Inter"
+                  font-weight="900"
+                  font-size="46"
+                  fill="#b0141d"
+                >
+                  ВЫХОДИТЕ
+                </text>
+                <text
+                  x="540"
+                  y="890"
+                  text-anchor="middle"
+                  font-family="Inter"
+                  font-weight="900"
+                  font-size="46"
+                  fill="#b0141d"
+                >
+                  НА УЛИЦУ
+                </text>
+                <rect x="452" y="960" width="176" height="6" fill="#c3cad1" />
+                <rect x="482" y="986" width="116" height="6" fill="#c3cad1" />
+              </g>
+              <g id="s1-bars" opacity="0">
+                <rect x="392" y="640" width="296" height="22" fill="#3fd2ff" />
+                <rect x="392" y="760" width="296" height="10" fill="#ff2d3a" />
+                <rect x="392" y="905" width="296" height="38" fill="#ffffff" />
+                <rect x="392" y="1030" width="296" height="14" fill="#3fd2ff" />
+              </g>
+            </g>
+          </svg>
+        </div>
+        <div class="title-wrap" style="top: 1300px">
+          <div id="s1-title" class="glitch-title" style="opacity: 0">
+            <span class="c" data-layout-ignore aria-hidden="true">СИГНАЛ</span>
+            <span class="r" data-layout-ignore aria-hidden="true">СИГНАЛ</span>
+            <span class="w">СИГНАЛ</span>
+          </div>
+          <span id="s1-kicker" class="kicker" style="opacity: 0">СЕРИЯ 1</span>
+        </div>
+      </section>
+
+      <!-- ============ S2 · BEDROOM, 6:00 (9–22) ============ -->
+      <section id="s2" class="scene clip" data-start="9" data-duration="13" data-track-index="0">
+        <div id="s2-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="s2-sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#4c5a74" />
+                <stop offset="1" stop-color="#8a96a8" />
+              </linearGradient>
+              <radialGradient id="s2-tvglow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#ff3341" stop-opacity="0.35" />
+                <stop offset="1" stop-color="#ff3341" stop-opacity="0" />
+              </radialGradient>
+              <radialGradient id="s2-phoneglow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#cfeaff" stop-opacity="0.6" />
+                <stop offset="1" stop-color="#cfeaff" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <g id="s2-cam">
+              <rect width="1080" height="1920" fill="#232a3c" />
+              <!-- wallpaper stripes -->
+              <g fill="#262e42">
+                <rect x="40" width="40" height="1300" />
+                <rect x="200" width="40" height="1300" />
+                <rect x="360" width="40" height="1300" />
+                <rect x="520" width="40" height="1300" />
+                <rect x="680" width="40" height="1300" />
+                <rect x="840" width="40" height="1300" />
+                <rect x="1000" width="40" height="1300" />
+              </g>
+              <rect y="1300" width="1080" height="620" fill="#171c29" />
+              <!-- window -->
+              <rect x="70" y="250" width="420" height="540" fill="#1a1f2c" />
+              <rect x="90" y="270" width="380" height="500" fill="url(#s2-sky)" />
+              <g fill="#3a4559">
+                <rect x="90" y="520" width="150" height="250" />
+                <rect x="250" y="460" width="120" height="310" />
+                <rect x="380" y="560" width="90" height="210" />
+              </g>
+              <g fill="#56637a">
+                <rect x="110" y="545" width="18" height="14" />
+                <rect x="150" y="545" width="18" height="14" />
+                <rect x="190" y="580" width="18" height="14" />
+                <rect x="270" y="490" width="18" height="14" />
+                <rect x="310" y="530" width="18" height="14" />
+                <rect x="400" y="590" width="18" height="14" />
+              </g>
+              <rect x="272" y="270" width="16" height="500" fill="#1a1f2c" />
+              <rect x="90" y="500" width="380" height="14" fill="#1a1f2c" />
+              <rect x="60" y="790" width="440" height="26" fill="#2f3850" />
+              <!-- curtain -->
+              <path d="M58 230 L150 230 C130 420 160 620 120 840 L58 840 Z" fill="#3b2f4a" />
+              <!-- clock -->
+              <circle cx="840" cy="200" r="70" fill="#d9d4c8" />
+              <circle cx="840" cy="200" r="58" fill="#efeadf" />
+              <line
+                x1="840"
+                y1="200"
+                x2="840"
+                y2="152"
+                stroke="#1b1e27"
+                stroke-width="7"
+                stroke-linecap="round"
+              />
+              <line
+                x1="840"
+                y1="200"
+                x2="840"
+                y2="238"
+                stroke="#1b1e27"
+                stroke-width="9"
+                stroke-linecap="round"
+              />
+              <!-- TV -->
+              <ellipse
+                id="s2-tvglow-el"
+                cx="800"
+                cy="520"
+                rx="420"
+                ry="360"
+                fill="url(#s2-tvglow)"
+                opacity="0"
+              />
+              <rect x="590" y="380" width="430" height="270" rx="10" fill="#0d0f15" />
+              <rect id="s2-tvoff" x="604" y="394" width="402" height="242" fill="#141822" />
+              <g id="s2-tvon" opacity="0">
+                <rect x="604" y="394" width="402" height="242" fill="#1d0608" />
+                <rect x="604" y="394" width="402" height="48" fill="#d81f2a" />
+                <text x="805" y="426" text-anchor="middle" class="mono" font-size="22" fill="#fff">
+                  ЭКСТРЕННОЕ ОПОВЕЩЕНИЕ
+                </text>
+                <text
+                  x="805"
+                  y="512"
+                  text-anchor="middle"
+                  font-family="Inter"
+                  font-weight="900"
+                  font-size="50"
+                  fill="#ff4b4b"
+                >
+                  НЕ ВЫХОДИТЕ
+                </text>
+                <text
+                  x="805"
+                  y="572"
+                  text-anchor="middle"
+                  font-family="Inter"
+                  font-weight="900"
+                  font-size="50"
+                  fill="#ff4b4b"
+                >
+                  НА УЛИЦУ
+                </text>
+                <rect id="s2-tvticker" x="604" y="604" width="402" height="32" fill="#2a0b0e" />
+              </g>
+              <rect x="780" y="650" width="50" height="26" fill="#0d0f15" />
+              <!-- bed -->
+              <rect x="80" y="1180" width="920" height="80" rx="20" fill="#1b2030" />
+              <rect x="60" y="1250" width="960" height="300" rx="24" fill="#12151f" />
+              <rect x="120" y="1120" width="260" height="110" rx="40" fill="#cfd3dc" />
+              <!-- Anya -->
+              <g id="s2-anya">
+                <ellipse
+                  id="s2-phoneglow-el"
+                  cx="560"
+                  cy="1020"
+                  rx="300"
+                  ry="300"
+                  fill="url(#s2-phoneglow)"
+                  opacity="0"
+                />
+                <path
+                  d="M410 1060 C420 990 480 960 545 960 C610 960 670 990 680 1060 L700 1280 L390 1280 Z"
+                  fill="#3f6b6a"
+                />
+                <path d="M470 980 L545 1010 L620 980 L600 965 L545 985 L490 965 Z" fill="#335756" />
+                <g id="s2-head">
+                  <rect x="520" y="920" width="50" height="60" fill="#d9a888" />
+                  <path
+                    d="M450 800 C450 730 500 700 545 700 C600 700 645 735 645 800 L650 960 L610 960 L600 860 L490 860 L480 960 L440 960 Z"
+                    fill="#241a1a"
+                  />
+                  <ellipse cx="545" cy="830" rx="78" ry="96" fill="#e7b896" />
+                  <path
+                    d="M467 815 C470 745 510 722 548 722 C590 722 625 748 628 810 C600 780 560 772 520 778 C500 790 480 800 467 815 Z"
+                    fill="#241a1a"
+                  />
+                  <g id="s2-eyes">
+                    <ellipse cx="515" cy="846" rx="9" ry="12" fill="#14141a" />
+                    <ellipse cx="575" cy="846" rx="9" ry="12" fill="#14141a" />
+                  </g>
+                  <path
+                    d="M532 888 Q545 882 558 888"
+                    stroke="#9b6a55"
+                    stroke-width="5"
+                    fill="none"
+                    stroke-linecap="round"
+                  />
+                </g>
+                <!-- arms + phone -->
+                <path
+                  d="M430 1080 C430 1140 470 1170 520 1160 L530 1130 C490 1130 470 1110 470 1080 Z"
+                  fill="#3f6b6a"
+                />
+                <path
+                  d="M660 1080 C660 1140 620 1170 570 1160 L560 1130 C600 1130 620 1110 620 1080 Z"
+                  fill="#3f6b6a"
+                />
+                <rect x="508" y="1058" width="78" height="120" rx="12" fill="#0f1116" />
+                <rect
+                  id="s2-phonescreen"
+                  x="515"
+                  y="1066"
+                  width="64"
+                  height="104"
+                  rx="7"
+                  fill="#e6f2fb"
+                />
+                <rect x="515" y="1066" width="64" height="20" rx="7" fill="#d81f2a" />
+                <circle cx="515" cy="1150" r="16" fill="#e7b896" />
+                <circle cx="579" cy="1150" r="16" fill="#e7b896" />
+              </g>
+              <!-- blanket -->
+              <path
+                d="M60 1280 C260 1230 420 1300 560 1270 C700 1240 860 1250 1020 1280 L1020 1560 L60 1560 Z"
+                fill="#33405e"
+              />
+              <path
+                d="M60 1360 C300 1330 600 1400 1020 1350"
+                stroke="#2b3651"
+                stroke-width="12"
+                fill="none"
+              />
+              <rect y="1560" width="1080" height="360" fill="#0f121b" />
+            </g>
+            <rect id="s2-blue" width="1080" height="1920" fill="#2a4a8a" opacity="0.12" />
+          </svg>
+        </div>
+        <div
+          id="capw-1"
+          class="cap clip"
+          data-start="10.4"
+          data-duration="5.4"
+          data-track-index="5"
+        >
+          <p id="cap-1">В 6:00 это появилось на <em>каждом</em> экране.</p>
+        </div>
+        <div
+          id="capw-2"
+          class="cap clip"
+          data-start="16.2"
+          data-duration="5.4"
+          data-track-index="5"
+        >
+          <p id="cap-2">На телефоне. На телевизоре. На часах. Одновременно.</p>
+        </div>
+      </section>
+
+      <!-- ============ S3 · SCREENS MONTAGE (22–33) ============ -->
+      <section id="s3" class="scene clip" data-start="22" data-duration="11" data-track-index="0">
+        <div id="s3-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <rect width="1080" height="1920" fill="#07080c" />
+            <!-- panel 1: billboard -->
+            <g id="s3-p1" opacity="0">
+              <rect x="60" y="230" width="465" height="560" fill="#1c2130" />
+              <rect x="60" y="230" width="465" height="560" fill="#30384d" opacity="0.4" />
+              <g fill="#151925">
+                <rect x="90" y="560" width="70" height="230" />
+                <rect x="430" y="520" width="80" height="270" />
+              </g>
+              <rect x="110" y="300" width="365" height="210" fill="#0c0d12" />
+              <rect x="122" y="312" width="341" height="186" fill="#c4121d" />
+              <text
+                x="292"
+                y="390"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="44"
+                fill="#fff"
+              >
+                НЕ ВЫХОДИТЕ
+              </text>
+              <text
+                x="292"
+                y="446"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="44"
+                fill="#fff"
+              >
+                НА УЛИЦУ
+              </text>
+              <rect x="285" y="510" width="16" height="280" fill="#0c0d12" />
+              <text x="80" y="770" class="mono" font-size="22" fill="#8b93a6">
+                БИЛБОРД · ПР. МИРА
+              </text>
+            </g>
+            <!-- panel 2: ATM -->
+            <g id="s3-p2" opacity="0">
+              <rect x="555" y="230" width="465" height="560" fill="#262b38" />
+              <rect x="625" y="280" width="325" height="460" rx="14" fill="#3b4254" />
+              <rect x="655" y="310" width="265" height="190" fill="#0c0d12" />
+              <rect x="665" y="320" width="245" height="170" fill="#123a5a" />
+              <text
+                x="787"
+                y="390"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="32"
+                fill="#ff5a5f"
+              >
+                НЕ ВЫХОДИТЕ
+              </text>
+              <text
+                x="787"
+                y="434"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="32"
+                fill="#ff5a5f"
+              >
+                НА УЛИЦУ
+              </text>
+              <g fill="#565e73">
+                <rect x="680" y="540" width="60" height="40" rx="6" />
+                <rect x="757" y="540" width="60" height="40" rx="6" />
+                <rect x="834" y="540" width="60" height="40" rx="6" />
+                <rect x="680" y="595" width="60" height="40" rx="6" />
+                <rect x="757" y="595" width="60" height="40" rx="6" />
+                <rect x="834" y="595" width="60" height="40" rx="6" />
+              </g>
+              <rect x="700" y="665" width="175" height="16" fill="#0c0d12" />
+              <text x="575" y="770" class="mono" font-size="22" fill="#8b93a6">
+                БАНКОМАТ · 06:00:00
+              </text>
+            </g>
+            <!-- panel 3: car dashboard -->
+            <g id="s3-p3" opacity="0">
+              <rect x="60" y="820" width="465" height="560" fill="#14161d" />
+              <path d="M60 820 L525 820 L525 990 C420 960 160 960 60 990 Z" fill="#2c3448" />
+              <circle cx="292" cy="1140" r="150" fill="#0b0c11" />
+              <circle cx="292" cy="1140" r="150" fill="none" stroke="#2a2e3a" stroke-width="26" />
+              <rect x="180" y="1030" width="224" height="130" rx="10" fill="#c4121d" />
+              <text
+                x="292"
+                y="1088"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="28"
+                fill="#fff"
+              >
+                НЕ ВЫХОДИТЕ
+              </text>
+              <text
+                x="292"
+                y="1126"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="28"
+                fill="#fff"
+              >
+                ИЗ МАШИНЫ
+              </text>
+              <text x="80" y="1360" class="mono" font-size="22" fill="#8b93a6">
+                АВТО · ТРАССА М-7
+              </text>
+            </g>
+            <!-- panel 4: watch -->
+            <g id="s3-p4" opacity="0">
+              <rect x="555" y="820" width="465" height="560" fill="#231b1e" />
+              <path
+                d="M600 1140 C700 1100 880 1110 1020 1060 L1020 1260 C880 1290 720 1280 600 1300 Z"
+                fill="#d9a888"
+              />
+              <rect x="710" y="930" width="170" height="80" fill="#1a1a1f" />
+              <rect x="710" y="1250" width="170" height="80" fill="#1a1a1f" />
+              <rect x="690" y="1000" width="210" height="260" rx="50" fill="#26262c" />
+              <rect x="708" y="1018" width="174" height="224" rx="36" fill="#0c0d12" />
+              <text
+                x="795"
+                y="1110"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="28"
+                fill="#ff5a5f"
+              >
+                НЕ
+              </text>
+              <text
+                x="795"
+                y="1146"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="28"
+                fill="#ff5a5f"
+              >
+                ВЫХОДИТЕ
+              </text>
+              <text
+                x="795"
+                y="1182"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="20"
+                fill="#ff5a5f"
+              >
+                НА УЛИЦУ
+              </text>
+              <text x="575" y="1360" class="mono" font-size="22" fill="#8b93a6">
+                ЧАСЫ · ПУЛЬС 128
+              </text>
+            </g>
+            <rect id="s3-flash" width="1080" height="1920" fill="#ffffff" opacity="0" />
+          </svg>
+        </div>
+        <div id="capw-3" class="cap clip" data-start="23" data-duration="4.6" data-track-index="5">
+          <p id="cap-3">У всех. В одну и ту же секунду.</p>
+        </div>
+        <div id="capw-4" class="cap clip" data-start="28" data-duration="4.4" data-track-index="5">
+          <p id="cap-4">Ни подписи. Ни объяснений.</p>
+        </div>
+      </section>
+
+      <!-- ============ S4+S5 · THE YARD, day → sunset (33–60) ============ -->
+      <section id="s4" class="scene clip" data-start="33" data-duration="27" data-track-index="0">
+        <div id="s4-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="s4-day" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#6f7f99" />
+                <stop offset="1" stop-color="#c3c4bd" />
+              </linearGradient>
+              <linearGradient id="s4-dusk" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#3a1029" />
+                <stop offset="0.55" stop-color="#b2262c" />
+                <stop offset="1" stop-color="#ff7a3d" />
+              </linearGradient>
+            </defs>
+            <g id="s4-cam">
+              <rect width="1080" height="1920" fill="url(#s4-day)" />
+              <rect id="s4-duskSky" width="1080" height="1920" fill="url(#s4-dusk)" opacity="0" />
+              <circle id="s4-sun" cx="700" cy="560" r="120" fill="#ffc06a" opacity="0" />
+              <!-- far blocks -->
+              <g id="s4-blocks">
+                <rect x="-20" y="420" width="420" height="900" fill="#58617a" />
+                <rect x="430" y="520" width="300" height="800" fill="#4d566d" />
+                <rect x="760" y="380" width="360" height="940" fill="#5d6680" />
+                <g id="s4-wins" fill="#3a4052"></g>
+                <g id="s4-watchers" fill="#0b0b10" opacity="0"></g>
+              </g>
+              <!-- ground -->
+              <rect y="1320" width="1080" height="600" fill="#6e6c64" />
+              <rect y="1320" width="1080" height="24" fill="#5a5850" />
+              <!-- near building (left) with entrance -->
+              <rect x="-10" y="1060" width="230" height="440" fill="#4a4f5c" />
+              <rect x="60" y="1260" width="110" height="200" fill="#26282e" />
+              <rect
+                id="s4-doorOpen"
+                x="60"
+                y="1260"
+                width="110"
+                height="200"
+                fill="#e7a24a"
+                opacity="0"
+              />
+              <rect id="s4-door" x="60" y="1260" width="110" height="200" fill="#3d3326" />
+              <rect x="40" y="1240" width="150" height="20" fill="#30333b" />
+              <!-- playground -->
+              <g id="s4-swingset">
+                <line x1="560" y1="1180" x2="520" y2="1480" stroke="#2e3038" stroke-width="12" />
+                <line x1="560" y1="1180" x2="600" y2="1480" stroke="#2e3038" stroke-width="12" />
+                <line x1="800" y1="1180" x2="760" y2="1480" stroke="#2e3038" stroke-width="12" />
+                <line x1="800" y1="1180" x2="840" y2="1480" stroke="#2e3038" stroke-width="12" />
+                <line x1="550" y1="1180" x2="810" y2="1180" stroke="#2e3038" stroke-width="14" />
+                <g id="s4-swing">
+                  <line x1="650" y1="1186" x2="650" y2="1390" stroke="#2e3038" stroke-width="5" />
+                  <line x1="710" y1="1186" x2="710" y2="1390" stroke="#2e3038" stroke-width="5" />
+                  <rect x="635" y="1388" width="90" height="16" fill="#8c2f2f" />
+                </g>
+              </g>
+              <rect x="860" y="1500" width="190" height="70" fill="#7b5a3c" />
+              <rect x="880" y="1480" width="150" height="24" fill="#5e4430" />
+              <!-- parked car -->
+              <path
+                d="M240 1600 L270 1530 C280 1510 300 1500 330 1500 L450 1500 C480 1500 500 1510 515 1530 L550 1600 L550 1660 L240 1660 Z"
+                fill="#3c4a58"
+              />
+              <rect x="300" y="1515" width="190" height="60" fill="#1e252f" />
+              <circle cx="300" cy="1662" r="30" fill="#16181d" />
+              <circle cx="490" cy="1662" r="30" fill="#16181d" />
+              <!-- Uncle Kolya -->
+              <g id="s4-kolya" opacity="0">
+                <g id="s4-kolya-body">
+                  <rect x="-26" y="-150" width="52" height="96" rx="12" fill="#3a3a2c" />
+                  <rect x="-22" y="-56" width="18" height="60" fill="#22232a" />
+                  <rect x="4" y="-56" width="18" height="60" fill="#22232a" />
+                  <rect x="20" y="-110" width="26" height="34" rx="4" fill="#6b4a2a" />
+                  <g id="s4-kolya-head">
+                    <circle cx="0" cy="-176" r="24" fill="#d6a283" />
+                    <path
+                      d="M-26 -182 C-26 -206 26 -206 26 -182 L34 -180 L-26 -178 Z"
+                      fill="#2b2e3a"
+                    />
+                  </g>
+                </g>
+              </g>
+              <!-- birds -->
+              <g id="s4-birds" fill="none" stroke="#24252c" stroke-width="5" stroke-linecap="round">
+                <path d="M0 0 Q14 -12 28 0 Q42 -12 56 0" transform="translate(-120 300)" />
+                <path d="M0 0 Q12 -10 24 0 Q36 -10 48 0" transform="translate(-60 360)" />
+                <path d="M0 0 Q12 -10 24 0 Q36 -10 48 0" transform="translate(-200 340)" />
+                <path d="M0 0 Q10 -8 20 0 Q30 -8 40 0" transform="translate(-260 270)" />
+              </g>
+              <rect id="s4-tint" width="1080" height="1920" fill="#2a0a14" opacity="0" />
+            </g>
+            <!-- window frame (we are behind glass) -->
+            <g fill="#14161d">
+              <rect width="1080" height="70" />
+              <rect y="1850" width="1080" height="70" />
+              <rect width="60" height="1920" />
+              <rect x="1020" width="60" height="1920" />
+              <rect x="520" width="40" height="1920" />
+              <rect y="900" width="1080" height="34" />
+            </g>
+            <!-- Anya's hand on the glass -->
+            <g id="s4-hand" opacity="0">
+              <path
+                d="M690 1920 L700 1640 C700 1610 740 1610 742 1640 L748 1540 C750 1505 792 1505 794 1540 L798 1520 C800 1485 842 1485 844 1520 L846 1550 C848 1515 890 1515 890 1550 L888 1700 C900 1660 940 1650 946 1690 L900 1840 L880 1920 Z"
+                fill="#1f1414"
+              />
+            </g>
+          </svg>
+        </div>
+        <div
+          id="s4-clock"
+          class="mono"
+          style="
+            position: absolute;
+            left: 96px;
+            top: 104px;
+            z-index: 33;
+            display: block;
+            width: 300px;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 58px;
+            color: #f3efe6;
+            background: rgba(5, 6, 10, 0.75);
+          "
+        >
+          <span id="s4-time">09:14</span>
+        </div>
+        <div
+          id="capw-5"
+          class="cap top clip"
+          data-start="34"
+          data-duration="4.6"
+          data-track-index="5"
+        >
+          <p id="cap-5">Никто не вышел.</p>
+        </div>
+        <div
+          id="capw-6"
+          class="cap top clip"
+          data-start="39.2"
+          data-duration="6.2"
+          data-track-index="5"
+        >
+          <p id="cap-6">Город молчал. Даже птицы летели без звука.</p>
+        </div>
+        <div
+          id="capw-7"
+          class="cap top clip"
+          data-start="47"
+          data-duration="5.4"
+          data-track-index="5"
+        >
+          <p id="cap-7">19:42. Дядя Коля из 14-й квартиры.</p>
+        </div>
+        <div
+          id="capw-8"
+          class="cap top clip"
+          data-start="52.8"
+          data-duration="6.4"
+          data-track-index="5"
+        >
+          <p id="cap-8">Он сказал, что это <em>чья-то шутка</em>.</p>
+        </div>
+      </section>
+
+      <!-- ============ S6 · THE SHADOW ON THE WALL (60–70) ============ -->
+      <section id="s6" class="scene clip" data-start="60" data-duration="10" data-track-index="0">
+        <div id="s6-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="s6-light" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ff8a4a" />
+                <stop offset="1" stop-color="#c2302b" />
+              </linearGradient>
+              <clipPath id="s6-clip">
+                <path d="M250 330 L930 450 L930 1290 L250 1170 Z" />
+              </clipPath>
+            </defs>
+            <g id="s6-room">
+              <rect width="1080" height="1920" fill="#2a1418" />
+              <g fill="#2f171c">
+                <rect x="40" width="40" height="1920" />
+                <rect x="200" width="40" height="1920" />
+                <rect x="360" width="40" height="1920" />
+                <rect x="520" width="40" height="1920" />
+                <rect x="680" width="40" height="1920" />
+                <rect x="840" width="40" height="1920" />
+                <rect x="1000" width="40" height="1920" />
+              </g>
+              <!-- projected window light -->
+              <g id="s6-patch">
+                <path d="M250 330 L930 450 L930 1290 L250 1170 Z" fill="url(#s6-light)" />
+                <g clip-path="url(#s6-clip)">
+                  <path d="M575 330 L605 335 L605 1240 L575 1235 Z" fill="#2a1418" opacity="0.85" />
+                  <path d="M250 770 L930 880 L930 905 L250 795 Z" fill="#2a1418" opacity="0.85" />
+                  <!-- the shadow -->
+                  <g id="s6-shadow" opacity="0">
+                    <g id="s6-sh-body">
+                      <rect x="-30" y="-180" width="60" height="120" rx="14" fill="#140709" />
+                      <rect x="-26" y="-62" width="22" height="64" fill="#140709" />
+                      <rect x="4" y="-62" width="22" height="64" fill="#140709" />
+                      <g id="s6-armL">
+                        <rect x="-44" y="-176" width="16" height="96" rx="8" fill="#140709" />
+                      </g>
+                      <g id="s6-armR">
+                        <rect x="28" y="-176" width="16" height="96" rx="8" fill="#140709" />
+                      </g>
+                      <g id="s6-sh-head">
+                        <circle cx="0" cy="-208" r="28" fill="#140709" />
+                        <path
+                          d="M-30 -214 C-30 -242 30 -242 30 -214 L40 -212 L-30 -210 Z"
+                          fill="#140709"
+                        />
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+              <rect y="1500" width="1080" height="420" fill="#170b0e" />
+            </g>
+            <!-- Anya from behind, foreground -->
+            <g id="s6-anya">
+              <path
+                d="M300 1920 C300 1740 380 1680 540 1680 C700 1680 780 1740 780 1920 Z"
+                fill="#0b0607"
+              />
+              <path
+                d="M430 1700 C410 1560 460 1470 540 1470 C620 1470 670 1560 650 1700 Z"
+                fill="#0b0607"
+              />
+            </g>
+            <rect id="s6-black" width="1080" height="1920" fill="#000" opacity="0" />
+          </svg>
+        </div>
+        <div
+          id="capw-9"
+          class="cap center clip"
+          data-start="68"
+          data-duration="2"
+          data-track-index="5"
+        >
+          <p id="cap-9">Больше его никто не видел.</p>
+        </div>
+      </section>
+
+      <!-- ============ S7 · THE COUNTER (70–84) ============ -->
+      <section id="s7" class="scene clip" data-start="70" data-duration="14" data-track-index="0">
+        <div id="s7-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="s7-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#ffd6d6" stop-opacity="0.5" />
+                <stop offset="1" stop-color="#ffd6d6" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="1080" height="1920" fill="#06070b" />
+            <rect id="s7-dawn" width="1080" height="1920" fill="#1f2c45" opacity="0" />
+            <g id="s7-cam">
+              <ellipse
+                id="s7-glow-el"
+                cx="540"
+                cy="900"
+                rx="620"
+                ry="700"
+                fill="url(#s7-glow)"
+                opacity="0"
+              />
+              <!-- Anya under the blanket, only eyes -->
+              <path
+                d="M200 760 C200 420 360 300 540 300 C720 300 880 420 880 760 L880 900 L200 900 Z"
+                fill="#26304a"
+              />
+              <path
+                d="M330 560 C360 470 440 430 540 430 C640 430 720 470 750 560 L750 650 L330 650 Z"
+                fill="#e2b08f"
+              />
+              <path
+                d="M330 560 C380 500 460 480 540 486 C620 480 700 500 750 560 L750 520 C720 460 640 430 540 430 C440 430 360 460 330 520 Z"
+                fill="#241a1a"
+              />
+              <g id="s7-eyes">
+                <ellipse cx="465" cy="580" rx="30" ry="34" fill="#f6efe6" />
+                <ellipse cx="615" cy="580" rx="30" ry="34" fill="#f6efe6" />
+                <circle cx="465" cy="586" r="15" fill="#15151b" />
+                <circle cx="615" cy="586" r="15" fill="#15151b" />
+                <rect x="458" y="580" width="10" height="7" fill="#ff5a5f" />
+                <rect x="608" y="580" width="10" height="7" fill="#ff5a5f" />
+              </g>
+              <path
+                d="M180 640 C300 620 420 660 540 650 C660 640 780 610 900 640 L920 960 L160 960 Z"
+                fill="#33405e"
+              />
+              <!-- phone -->
+              <g id="s7-phone">
+                <rect x="290" y="760" width="500" height="900" rx="60" fill="#14161d" />
+                <rect x="318" y="792" width="444" height="836" rx="36" fill="#0b0d12" />
+                <g id="s7-msg" opacity="0">
+                  <rect x="318" y="792" width="444" height="836" rx="36" fill="#140405" />
+                  <rect x="318" y="792" width="444" height="110" rx="36" fill="#d81f2a" />
+                  <rect x="318" y="862" width="444" height="40" fill="#d81f2a" />
+                  <text
+                    x="540"
+                    y="866"
+                    text-anchor="middle"
+                    class="mono"
+                    font-size="30"
+                    fill="#fff"
+                  >
+                    ОПОВЕЩЕНИЕ
+                  </text>
+                  <text
+                    x="540"
+                    y="1080"
+                    text-anchor="middle"
+                    font-family="Inter"
+                    font-weight="900"
+                    font-size="66"
+                    fill="#f3efe6"
+                  >
+                    ОСТАЛОСЬ
+                  </text>
+                </g>
+              </g>
+              <g id="s7-bars" opacity="0">
+                <rect x="318" y="990" width="444" height="26" fill="#3fd2ff" />
+                <rect x="318" y="1180" width="444" height="12" fill="#ff2d3a" />
+                <rect x="318" y="1400" width="444" height="44" fill="#ffffff" />
+              </g>
+            </g>
+          </svg>
+        </div>
+        <div
+          id="s7-counter-wrap"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 1130px;
+            display: flex;
+            justify-content: center;
+            z-index: 5;
+            opacity: 0;
+          "
+        >
+          <div
+            id="s7-counter"
+            class="mono"
+            style="
+              display: block;
+              width: 444px;
+              text-align: center;
+              font-size: 74px;
+              color: #ff4b4b;
+              letter-spacing: -0.02em;
+            "
+          >
+            4 812 331
+          </div>
+        </div>
+        <div
+          id="s7-sub-wrap"
+          style="
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 1270px;
+            display: flex;
+            justify-content: center;
+            z-index: 5;
+            opacity: 0;
+          "
+        >
+          <div
+            class="mono"
+            style="
+              display: block;
+              width: 400px;
+              text-align: center;
+              font-size: 26px;
+              color: #d6cfc4;
+              line-height: 1.4;
+            "
+          >
+            ОСТАВАЙТЕСЬ ДОМА
+          </div>
+        </div>
+        <div id="capw-10" class="cap clip" data-start="71.6" data-duration="4" data-track-index="5">
+          <p id="cap-10">Утром экраны включились снова.</p>
+        </div>
+        <div
+          id="capw-11"
+          class="cap clip"
+          data-start="78.6"
+          data-duration="5.2"
+          data-track-index="5"
+        >
+          <p id="cap-11">Число уменьшалось. <em>Прямо сейчас.</em></p>
+        </div>
+      </section>
+
+      <!-- ============ S8 · END CARD (84–90) ============ -->
+      <section id="s8" class="scene clip" data-start="84" data-duration="6" data-track-index="0">
+        <div class="title-wrap" style="top: 700px">
+          <span id="s8-kicker" class="kicker" style="opacity: 0">СЕРИЯ 1</span>
+          <div id="s8-title" class="glitch-title" style="opacity: 0">
+            <span class="c" data-layout-ignore aria-hidden="true">СИГНАЛ</span>
+            <span class="r" data-layout-ignore aria-hidden="true">СИГНАЛ</span>
+            <span class="w">СИГНАЛ</span>
+          </div>
+          <span id="s8-sub" class="sub" style="opacity: 0">«Не выходите на улицу»</span>
+          <span id="s8-next" class="next" style="opacity: 0">СЕРИЯ 2 · СКОРО</span>
+        </div>
+      </section>
+
+      <div id="vignette"></div>
+      <svg id="grain" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+        <filter id="grain-f">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="1080" height="1920" filter="url(#grain-f)" />
+      </svg>
+      <div id="scanlines"></div>
+    </div>
+
+    <script>
+      // ---- deterministic scene dressing ----
+      const SVGNS = "http://www.w3.org/2000/svg";
+      let seed = 20261019;
+      const rand = () => {
+        seed = (seed * 1664525 + 1013904223) % 4294967296;
+        return seed / 4294967296;
+      };
+      const wins = document.getElementById("s4-wins");
+      const watchers = document.getElementById("s4-watchers");
+      const blocks = [
+        [10, 460, 380, 840],
+        [450, 560, 260, 740],
+        [790, 420, 300, 880],
+      ];
+      blocks.forEach(([bx, by, bw, bh]) => {
+        for (let y = by + 30; y < by + bh - 80; y += 74) {
+          for (let x = bx + 24; x < bx + bw - 50; x += 66) {
+            const r = document.createElementNS(SVGNS, "rect");
+            r.setAttribute("x", x);
+            r.setAttribute("y", y);
+            r.setAttribute("width", 38);
+            r.setAttribute("height", 44);
+            wins.appendChild(r);
+            if (rand() < 0.28) {
+              const p = document.createElementNS(SVGNS, "path");
+              const cx = x + 19;
+              p.setAttribute(
+                "d",
+                `M${cx - 9} ${y + 44} L${cx - 9} ${y + 26} C${cx - 9} ${y + 20} ${cx + 9} ${y + 20} ${cx + 9} ${y + 26} L${cx + 9} ${y + 44} Z M${cx} ${y + 10} a7 7 0 1 0 0.01 0 Z`,
+              );
+              watchers.appendChild(p);
+            }
+          }
+        }
+      });
+
+      // Counter decrements, precomputed.
+      const START = 4812331;
+      const steps = [];
+      let acc = START;
+      for (let i = 0; i < 44; i++) {
+        acc -= 3 + ((i * 7919) % 41);
+        steps.push(acc);
+      }
+      const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+      const counterEl = document.getElementById("s7-counter");
+      const clockEl = document.getElementById("s4-time");
+      const clockAt = (s) => {
+        const keys = [
+          [0, "09:14"],
+          [3.2, "11:37"],
+          [6.4, "14:02"],
+          [9.6, "17:48"],
+          [13.2, "19:42"],
+          [20.5, "19:58"],
+        ];
+        let v = keys[0][1];
+        for (const [k, label] of keys) if (s >= k) v = label;
+        return v;
+      };
+
+      // ---- timeline ----
+      const tl = gsap.timeline({ paused: true });
+
+      // S1 hook
+      tl.fromTo(
+        "#s1-cam",
+        { scale: 1 },
+        { scale: 1.22, duration: 9, ease: "none", svgOrigin: "540 830" },
+        0,
+      );
+      tl.to("#s1-glow-el", { opacity: 1, duration: 0.15 }, 0.9);
+      tl.to("#s1-bars", { opacity: 1, duration: 0.05 }, 0.9);
+      tl.to("#s1-bars", { opacity: 0, duration: 0.05 }, 1.05);
+      tl.to("#s1-msg", { opacity: 1, duration: 0.05 }, 1.1);
+      tl.to("#s1-bars", { opacity: 1, duration: 0.05 }, 1.3);
+      tl.to("#s1-bars", { opacity: 0, duration: 0.05 }, 1.45);
+      tl.to("#s1-bars", { opacity: 1, duration: 0.04 }, 4.2);
+      tl.to("#s1-bars", { opacity: 0, duration: 0.04 }, 4.3);
+      tl.fromTo(
+        "#s1-title",
+        { opacity: 0, scale: 1.12 },
+        { opacity: 1, scale: 1, duration: 0.25, ease: "power4.out" },
+        6.0,
+      );
+      tl.fromTo("#s1-title .r", { x: -14 }, { x: 0, duration: 1.2, ease: "power2.out" }, 6.0);
+      tl.fromTo("#s1-title .c", { x: 14 }, { x: 0, duration: 1.2, ease: "power2.out" }, 6.0);
+      tl.fromTo(
+        "#s1-kicker",
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+        6.5,
+      );
+      tl.to(
+        "#s1-stage, #s1-title, #s1-kicker",
+        { opacity: 0, duration: 0.5, ease: "power2.in" },
+        8.4,
+      );
+
+      // S2 bedroom
+      tl.fromTo(
+        "#s2-stage",
+        { opacity: 0 },
+        { opacity: 1, duration: 0.8, ease: "power1.out" },
+        9.0,
+      );
+      tl.fromTo(
+        "#s2-cam",
+        { scale: 1.05 },
+        { scale: 1.16, duration: 13, ease: "none", svgOrigin: "540 900" },
+        9.0,
+      );
+      tl.fromTo(
+        "#s2-phoneglow-el",
+        { opacity: 0.5 },
+        { opacity: 1, duration: 1.2, yoyo: true, repeat: 9, ease: "sine.inOut" },
+        9.0,
+      );
+      tl.to("#s2-tvon", { opacity: 1, duration: 0.05 }, 9.15);
+      tl.to("#s2-tvglow-el", { opacity: 1, duration: 0.3 }, 9.15);
+      tl.to("#s2-tvon", { opacity: 0.2, duration: 0.05 }, 9.35);
+      tl.to("#s2-tvon", { opacity: 1, duration: 0.05 }, 9.45);
+      tl.fromTo(
+        "#s2-head",
+        { rotation: 0 },
+        { rotation: 9, duration: 1.4, ease: "power2.inOut", svgOrigin: "545 960" },
+        12.4,
+      );
+      tl.to("#s2-eyes", { x: 14, duration: 0.6, ease: "power2.inOut" }, 12.6);
+      [14.2, 18.6].forEach((t0) => {
+        tl.to("#s2-eyes", { scaleY: 0.1, duration: 0.08, svgOrigin: "545 846" }, t0);
+        tl.to("#s2-eyes", { scaleY: 1, duration: 0.1, svgOrigin: "545 846" }, t0 + 0.1);
+      });
+      tl.to(
+        "#s2-head",
+        { rotation: 0, duration: 1.2, ease: "power2.inOut", svgOrigin: "545 960" },
+        17.0,
+      );
+      tl.to("#s2-eyes", { x: 0, duration: 0.6, ease: "power2.inOut" }, 17.0);
+      tl.to("#s2-stage", { opacity: 0, duration: 0.35 }, 21.65);
+
+      // S3 screens montage, cut on the glitch hits
+      const panels = ["#s3-p1", "#s3-p2", "#s3-p3", "#s3-p4"];
+      [22.2, 24.9, 27.4, 29.9].forEach((t0, i) => {
+        tl.fromTo(panels[i], { opacity: 0 }, { opacity: 1, duration: 0.06 }, t0);
+        tl.to(panels[i], { opacity: 0.35, duration: 0.05 }, t0 + 0.12);
+        tl.to(panels[i], { opacity: 1, duration: 0.05 }, t0 + 0.2);
+      });
+      tl.fromTo(
+        "#s3-stage",
+        { scale: 1 },
+        { scale: 1.06, duration: 11, ease: "none", transformOrigin: "50% 45%" },
+        22,
+      );
+      tl.fromTo("#s3-flash", { opacity: 0 }, { opacity: 0.9, duration: 0.08 }, 32.6);
+      tl.to("#s3-flash", { opacity: 0, duration: 0.3 }, 32.7);
+      tl.to("#s3-stage", { opacity: 0, duration: 0.2 }, 32.8);
+
+      // S4/S5 the yard
+      tl.fromTo("#s4-stage", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 33.0);
+      tl.fromTo(
+        "#s4-cam",
+        { scale: 1.0 },
+        { scale: 1.1, duration: 27, ease: "none", svgOrigin: "540 1300" },
+        33,
+      );
+      tl.fromTo(
+        "#s4-swing",
+        { rotation: -7 },
+        {
+          rotation: 7,
+          duration: 2.2,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: 11,
+          svgOrigin: "680 1186",
+        },
+        33,
+      );
+      tl.fromTo("#s4-birds", { x: 0, y: 0 }, { x: 1500, y: -120, duration: 7, ease: "none" }, 36.5);
+      tl.fromTo(
+        "#s4-watchers",
+        { opacity: 0 },
+        { opacity: 0.85, duration: 4, ease: "power1.in" },
+        40.5,
+      );
+      const clockProxy = { s: 0 };
+      tl.fromTo(
+        clockProxy,
+        { s: 0 },
+        {
+          s: 27,
+          duration: 27,
+          ease: "none",
+          onUpdate: () => {
+            clockEl.textContent = clockAt(clockProxy.s);
+          },
+        },
+        33,
+      );
+      // dusk
+      tl.to("#s4-duskSky", { opacity: 1, duration: 3, ease: "power1.inOut" }, 45.0);
+      tl.fromTo(
+        "#s4-sun",
+        { opacity: 0, y: -120 },
+        { opacity: 1, y: 260, duration: 13, ease: "none" },
+        45.0,
+      );
+      tl.to("#s4-tint", { opacity: 0.42, duration: 3, ease: "power1.inOut" }, 45.0);
+      tl.to("#s4-watchers", { opacity: 0, duration: 1.5 }, 45.5);
+      tl.to(
+        "#s4-door",
+        { scaleX: 0.08, duration: 0.8, ease: "power2.inOut", svgOrigin: "170 1360" },
+        48.4,
+      );
+      tl.to("#s4-doorOpen", { opacity: 1, duration: 0.3 }, 48.4);
+      tl.set("#s4-kolya", { opacity: 1 }, 49.0);
+      tl.fromTo(
+        "#s4-kolya",
+        { x: 115, y: 1460, scale: 1.5 },
+        { x: 430, y: 1610, scale: 1.7, duration: 4.0, ease: "none" },
+        49.0,
+      );
+      tl.fromTo(
+        "#s4-kolya-body",
+        { y: 0 },
+        { y: -8, duration: 0.25, yoyo: true, repeat: 15, ease: "sine.inOut" },
+        49.0,
+      );
+      tl.to(
+        "#s4-kolya-head",
+        { rotation: -18, duration: 0.8, ease: "power2.out", svgOrigin: "0 -160" },
+        53.4,
+      );
+      tl.to("#s4-kolya", { x: 640, y: 1640, duration: 4.0, ease: "power1.inOut" }, 55.0);
+      tl.to(
+        "#s4-door",
+        { scaleX: 1, duration: 0.6, ease: "power2.in", svgOrigin: "170 1360" },
+        54.0,
+      );
+      tl.to("#s4-doorOpen", { opacity: 0, duration: 0.3 }, 54.3);
+      tl.fromTo(
+        "#s4-hand",
+        { opacity: 0, y: 160 },
+        { opacity: 1, y: 0, duration: 1.4, ease: "power2.out" },
+        50.6,
+      );
+      tl.to("#s4-tint", { opacity: 0.75, duration: 1.6 }, 58.2);
+      tl.to("#s4-stage", { opacity: 0, duration: 0.3 }, 59.7);
+
+      // S6 the shadow
+      tl.fromTo("#s6-stage", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 60.0);
+      tl.fromTo(
+        "#s6-room",
+        { scale: 1 },
+        { scale: 1.14, duration: 7.4, ease: "power1.in", svgOrigin: "590 820" },
+        60.0,
+      );
+      tl.set("#s6-shadow", { x: 470, y: 1180 }, 60);
+      tl.to("#s6-shadow", { opacity: 1, duration: 1.2, ease: "power1.in" }, 60.6);
+      tl.to("#s6-shadow", { x: 590, duration: 2.2, ease: "power1.inOut" }, 60.6);
+      tl.to(
+        "#s6-sh-body",
+        { scaleY: 2.4, scaleX: 0.85, duration: 4.6, ease: "power2.in", svgOrigin: "0 0" },
+        62.7,
+      );
+      tl.to(
+        "#s6-armL",
+        { rotation: 160, scaleY: 1.9, duration: 4.0, ease: "power2.in", svgOrigin: "-36 -170" },
+        63.3,
+      );
+      tl.to(
+        "#s6-armR",
+        { rotation: -150, scaleY: 2.1, duration: 4.0, ease: "power2.in", svgOrigin: "36 -170" },
+        63.6,
+      );
+      tl.to(
+        "#s6-sh-head",
+        { rotation: -55, duration: 3.2, ease: "power3.in", svgOrigin: "0 -182" },
+        64.1,
+      );
+      [64.8, 65.9, 66.6, 67.0].forEach((t0) => {
+        tl.to("#s6-patch", { opacity: 0.45, duration: 0.04 }, t0);
+        tl.to("#s6-patch", { opacity: 1, duration: 0.06 }, t0 + 0.07);
+      });
+      tl.to("#s6-anya", { y: 30, duration: 2, ease: "power2.in" }, 65.3);
+      tl.set("#s6-black", { opacity: 1 }, 67.35);
+      tl.fromTo("#cap-9", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power1.out" }, 68.0);
+
+      // S7 the counter
+      tl.fromTo("#s7-stage", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 70.0);
+      tl.fromTo(
+        "#s7-cam",
+        { scale: 1 },
+        { scale: 1.12, duration: 14, ease: "none", svgOrigin: "540 1000" },
+        70.0,
+      );
+      tl.to("#s7-bars", { opacity: 1, duration: 0.04 }, 70.2);
+      tl.to("#s7-bars", { opacity: 0, duration: 0.04 }, 70.32);
+      tl.to("#s7-msg", { opacity: 1, duration: 0.04 }, 70.6);
+      tl.to("#s7-glow-el", { opacity: 1, duration: 0.3 }, 70.6);
+      tl.to("#s7-bars", { opacity: 1, duration: 0.04 }, 71.0);
+      tl.to("#s7-bars", { opacity: 0, duration: 0.04 }, 71.12);
+      tl.to("#s7-counter-wrap", { opacity: 1, duration: 0.05 }, 71.1);
+      tl.to("#s7-sub-wrap", { opacity: 1, duration: 0.4 }, 72.2);
+      tl.to("#s7-dawn", { opacity: 1, duration: 9, ease: "power1.in" }, 72.0);
+      [74.4, 77.6, 81.2].forEach((t0) => {
+        tl.to("#s7-eyes", { scaleY: 0.1, duration: 0.07, svgOrigin: "540 586" }, t0);
+        tl.to("#s7-eyes", { scaleY: 1, duration: 0.1, svgOrigin: "540 586" }, t0 + 0.09);
+      });
+      const counterProxy = { i: 0 };
+      tl.fromTo(
+        counterProxy,
+        { i: 0 },
+        {
+          i: steps.length,
+          duration: steps.length * 0.25,
+          ease: "none",
+          onUpdate: () => {
+            const k = Math.floor(counterProxy.i);
+            counterEl.textContent = fmt(k === 0 ? START : steps[Math.min(k, steps.length) - 1]);
+          },
+        },
+        73.5,
+      );
+      tl.to("#s7-stage, #s7-counter-wrap, #s7-sub-wrap", { opacity: 0, duration: 0.1 }, 84.3);
+
+      // S8 end card
+      tl.fromTo(
+        "#s8-kicker",
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+        84.5,
+      );
+      tl.fromTo(
+        "#s8-title",
+        { opacity: 0, scale: 1.15 },
+        { opacity: 1, scale: 1, duration: 0.3, ease: "power4.out" },
+        84.5,
+      );
+      tl.fromTo("#s8-title .r", { x: -16 }, { x: 0, duration: 1.4, ease: "power2.out" }, 84.5);
+      tl.fromTo("#s8-title .c", { x: 16 }, { x: 0, duration: 1.4, ease: "power2.out" }, 84.5);
+      tl.fromTo(
+        "#s8-sub",
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+        85.2,
+      );
+      tl.fromTo(
+        "#s8-next",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+        86.2,
+      );
+      tl.to("#s8-title .r", { x: -10, duration: 0.05 }, 87.6);
+      tl.to("#s8-title .r", { x: 0, duration: 0.05 }, 87.7);
+      tl.to(
+        "#s8-kicker, #s8-title, #s8-sub, #s8-next",
+        { opacity: 0, duration: 0.8, ease: "power1.in" },
+        89.1,
+      );
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
