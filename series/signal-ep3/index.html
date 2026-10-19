@@ -1,0 +1,1449 @@
+<!doctype html>
+<html lang="ru" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Сигнал · Серия 3</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter";
+        src: url("assets/fonts/Inter-Medium.otf") format("opentype");
+        font-weight: 500;
+      }
+      @font-face {
+        font-family: "Inter";
+        src: url("assets/fonts/Inter-Bold.otf") format("opentype");
+        font-weight: 700;
+      }
+      @font-face {
+        font-family: "Inter";
+        src: url("assets/fonts/Inter-Black.otf") format("opentype");
+        font-weight: 900;
+      }
+      @font-face {
+        font-family: "Signal Mono";
+        src: url("assets/fonts/DejaVuSansMono-Bold.ttf") format("truetype");
+        font-weight: 700;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #05060a;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #05060a;
+        font-family: "Inter", sans-serif;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #05060a;
+      }
+      .stage {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .stage svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .mono {
+        font-family: "Signal Mono", monospace;
+        font-weight: 700;
+      }
+      /* Captions: overlay, inside the social-safe zone. */
+      .cap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 1430px;
+        display: flex;
+        justify-content: center;
+        padding: 0 90px;
+        z-index: 20;
+      }
+      .cap p {
+        display: block;
+        max-width: 900px;
+        padding: 18px 30px;
+        background: rgba(5, 6, 10, 0.72);
+        color: #f3efe6;
+        font-weight: 700;
+        font-size: 52px;
+        line-height: 1.22;
+        letter-spacing: -0.01em;
+        text-align: center;
+      }
+      .cap p em {
+        font-style: normal;
+        color: #ff4b4b;
+      }
+      .cap.top {
+        top: 130px;
+      }
+      .cap.center {
+        top: 880px;
+      }
+      .cap.center p {
+        background: transparent;
+        font-size: 60px;
+      }
+      /* Title cards */
+      .title-wrap {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 22px;
+      }
+      .glitch-title {
+        position: relative;
+        display: block;
+        width: 900px;
+        height: 190px;
+      }
+      .glitch-title span {
+        position: absolute;
+        inset: 0;
+        display: block;
+        text-align: center;
+        font-weight: 900;
+        font-size: 170px;
+        line-height: 190px;
+        letter-spacing: 0.06em;
+        color: #f3efe6;
+      }
+      .glitch-title .r {
+        color: #ff2d3a;
+        mix-blend-mode: screen;
+      }
+      .glitch-title .c {
+        color: #3fd2ff;
+        mix-blend-mode: screen;
+      }
+      .kicker {
+        display: block;
+        font-weight: 700;
+        font-size: 40px;
+        letter-spacing: 0.32em;
+        color: #c9c4ba;
+      }
+      .sub {
+        display: block;
+        font-weight: 500;
+        font-size: 40px;
+        color: #a8a397;
+        letter-spacing: 0.02em;
+      }
+      .next {
+        display: block;
+        margin-top: 70px;
+        padding: 20px 40px;
+        border: 3px solid #ff2d3a;
+        color: #ff4b4b;
+        font-weight: 900;
+        font-size: 46px;
+        letter-spacing: 0.12em;
+      }
+      /* Persistent film treatment above every scene */
+      #vignette {
+        position: absolute;
+        inset: 0;
+        z-index: 30;
+        pointer-events: none;
+        background: radial-gradient(
+          ellipse 75% 60% at 50% 45%,
+          rgba(0, 0, 0, 0) 55%,
+          rgba(0, 0, 0, 0.75) 100%
+        );
+      }
+      #grain {
+        position: absolute;
+        inset: 0;
+        z-index: 31;
+        width: 100%;
+        height: 100%;
+        opacity: 0.09;
+        pointer-events: none;
+      }
+      #scanlines {
+        position: absolute;
+        inset: 0;
+        z-index: 32;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.025) 0 2px,
+          rgba(0, 0, 0, 0) 2px 6px
+        );
+      }
+      .cap.low {
+        top: 1520px;
+      }
+      .hud {
+        position: absolute;
+        left: 70px;
+        right: 70px;
+        display: block;
+        padding: 26px 36px 30px;
+        background: rgba(5, 6, 10, 0.86);
+        border: 2px solid #3a3f4c;
+        z-index: 10;
+      }
+      .hud-head {
+        display: block;
+        margin-bottom: 14px;
+        font-size: 28px;
+        letter-spacing: 0.08em;
+        color: #9aa3b5;
+      }
+      .hud-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 9px 0;
+        font-weight: 700;
+        font-size: 40px;
+        color: #f3efe6;
+      }
+      .hud-row .v {
+        font-family: "Signal Mono", monospace;
+        font-size: 36px;
+        color: #ffcf6b;
+      }
+      .hud-row.total {
+        margin-top: 10px;
+        padding-top: 18px;
+        border-top: 2px solid #3a3f4c;
+        font-weight: 900;
+      }
+      .hud-row.total .v {
+        font-size: 44px;
+        color: #ff6b6b;
+      }
+      .center-col {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+      }
+      .calc {
+        display: block;
+        width: 900px;
+        font-family: "Signal Mono", monospace;
+        font-weight: 700;
+        font-size: 40px;
+        line-height: 1.5;
+        color: #e6e0d4;
+        text-align: center;
+      }
+      .calc b {
+        color: #ffcf6b;
+      }
+      .stamp {
+        display: block;
+        padding: 18px 40px;
+        border: 9px solid #e0303a;
+        color: #ff3b45;
+        font-weight: 900;
+        font-size: 92px;
+        letter-spacing: 0.02em;
+        line-height: 1.05;
+        text-align: center;
+      }
+      .days {
+        display: flex;
+        gap: 34px;
+      }
+      .day {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 220px;
+        height: 230px;
+        background: #e9e3d6;
+        color: #1b1d24;
+      }
+      .day b {
+        display: block;
+        font-weight: 900;
+        font-size: 110px;
+        line-height: 1;
+      }
+      .day span {
+        display: block;
+        margin-top: 10px;
+        font-family: "Signal Mono", monospace;
+        font-size: 22px;
+        color: #5a5d66;
+      }
+      .day.dead {
+        background: #2a2d36;
+        color: #6b6f7a;
+      }
+      .note {
+        display: block;
+        font-family: "Signal Mono", monospace;
+        font-weight: 700;
+        font-size: 30px;
+        color: #9aa3b5;
+        letter-spacing: 0.06em;
+      }
+      .cap p .who {
+        color: #8fd6c8;
+      }
+      .cap p .voice {
+        color: #ff6b6b;
+      }
+      .plaque {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 240px;
+        height: 240px;
+        background: #d8d2c2;
+        font-weight: 900;
+        font-size: 190px;
+        color: #2a2e36;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="90"
+      data-width="1080"
+      data-height="1920"
+    >
+      <audio
+        id="bed"
+        src="assets/audio/bed.wav"
+        data-start="0"
+        data-duration="90"
+        data-track-index="9"
+        data-volume="1"
+      ></audio>
+
+      <!-- ============ S1 · THE PEEPHOLE (0–22) ============ -->
+      <section id="s1" class="scene clip" data-start="0" data-duration="22" data-track-index="0">
+        <div id="s1-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <clipPath id="pp-clip"><circle cx="540" cy="860" r="430" /></clipPath>
+              <radialGradient id="pp-lens" cx="50%" cy="50%" r="50%">
+                <stop offset="0.6" stop-color="#000" stop-opacity="0" />
+                <stop offset="1" stop-color="#000" stop-opacity="0.92" />
+              </radialGradient>
+              <radialGradient id="pp-lamp" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#ffe9a8" stop-opacity="0.55" />
+                <stop offset="1" stop-color="#ffe9a8" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="1080" height="1920" fill="#1c1410" />
+            <g clip-path="url(#pp-clip)">
+              <g id="pp-cam">
+                <rect x="0" y="300" width="1080" height="1100" fill="#5f646b" />
+                <rect x="0" y="1020" width="1080" height="280" fill="#3d5953" />
+                <rect x="0" y="1014" width="1080" height="8" fill="#2f4743" />
+                <rect x="0" y="1300" width="1080" height="220" fill="#3a3d44" />
+                <circle cx="540" cy="450" r="170" fill="url(#pp-lamp)" />
+                <circle cx="540" cy="450" r="20" fill="#fff3c8" />
+                <g stroke="#22252c" stroke-width="8">
+                  <line x1="90" y1="1250" x2="320" y2="930" />
+                  <line x1="140" y1="1180" x2="140" y2="1300" />
+                  <line x1="200" y1="1096" x2="200" y2="1300" />
+                  <line x1="260" y1="1013" x2="260" y2="1300" />
+                </g>
+                <!-- her shadow on the wall -->
+                <g id="pp-shadow" fill="#2c2f35" opacity="0.85">
+                  <path d="M690 1310 L700 700 C700 660 800 660 800 700 L810 1310 Z" />
+                  <rect x="735" y="560" width="30" height="120" />
+                  <g id="pp-shhead">
+                    <circle cx="750" cy="530" r="44" />
+                    <circle cx="782" cy="492" r="20" />
+                  </g>
+                </g>
+                <!-- mom -->
+                <g id="pp-mom">
+                  <rect x="500" y="1180" width="30" height="140" fill="#26252b" />
+                  <rect x="552" y="1180" width="30" height="140" fill="#26252b" />
+                  <path
+                    d="M470 1200 L480 880 C480 840 600 840 600 880 L612 1200 Z"
+                    fill="#7a4a5a"
+                  />
+                  <path d="M540 880 L540 1200" stroke="#5f3646" stroke-width="5" />
+                  <rect x="440" y="900" width="36" height="230" rx="16" fill="#6a3f4e" />
+                  <rect x="606" y="900" width="36" height="200" rx="16" fill="#6a3f4e" />
+                  <path d="M610 1100 L690 1100 L700 1230 L600 1230 Z" fill="#d9d4c8" />
+                  <path
+                    d="M622 1100 C622 1070 678 1070 678 1100"
+                    fill="none"
+                    stroke="#d9d4c8"
+                    stroke-width="6"
+                  />
+                  <rect x="526" y="810" width="30" height="40" fill="#d9a888" />
+                  <circle cx="541" cy="760" r="62" fill="#e7b896" />
+                  <path
+                    d="M480 760 C474 690 520 676 545 676 C580 676 610 694 604 740 C580 712 520 712 480 760 Z"
+                    fill="#4a3226"
+                  />
+                  <circle cx="545" cy="672" r="30" fill="#4a3226" />
+                  <circle cx="518" cy="760" r="7" fill="#15151b" />
+                  <circle cx="566" cy="760" r="7" fill="#15151b" />
+                  <path
+                    d="M515 790 Q541 812 567 790"
+                    fill="none"
+                    stroke="#9b4a4a"
+                    stroke-width="5"
+                    stroke-linecap="round"
+                  />
+                </g>
+              </g>
+              <circle cx="540" cy="860" r="430" fill="url(#pp-lens)" />
+            </g>
+            <circle cx="540" cy="860" r="440" fill="none" stroke="#6b5a45" stroke-width="18" />
+          </svg>
+        </div>
+        <div
+          id="s1-hud"
+          class="hud mono"
+          style="
+            top: 120px;
+            opacity: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <span style="display: block; font-size: 34px; color: #c9c4ba">ОСТАЛОСЬ</span>
+          <span id="s1-count" style="display: block; font-size: 40px; color: #ff4b4b"
+            >3 902 114</span
+          >
+        </div>
+        <div class="title-wrap" style="top: 1380px">
+          <div id="s1-title" class="glitch-title" style="opacity: 0">
+            <span class="c" data-layout-ignore aria-hidden="true">СИГНАЛ</span>
+            <span class="r" data-layout-ignore aria-hidden="true">СИГНАЛ</span>
+            <span class="w">СИГНАЛ</span>
+          </div>
+          <span id="s1-kicker" class="kicker" style="opacity: 0">СЕРИЯ 3 · ОТКРОЙ</span>
+        </div>
+        <div id="capw-1" class="cap clip" data-start="9" data-duration="2.7" data-track-index="5">
+          <p id="cap-1"><span class="who">Аня:</span> «Какой мой любимый мультик?»</p>
+        </div>
+        <div id="capw-2" class="cap clip" data-start="12" data-duration="3.3" data-track-index="5">
+          <p id="cap-2"><span class="voice">Голос:</span> «„Ёжик в тумане“. Ты боялась лошади».</p>
+        </div>
+        <div
+          id="capw-3"
+          class="cap clip"
+          data-start="15.6"
+          data-duration="2.7"
+          data-track-index="5"
+        >
+          <p id="cap-3">Ответ был правильный. Счётчик <em>остановился</em>.</p>
+        </div>
+        <div
+          id="capw-4"
+          class="cap clip"
+          data-start="18.6"
+          data-duration="3.2"
+          data-track-index="5"
+        >
+          <p id="cap-4">А тень на стене двигалась <em>сама</em>.</p>
+        </div>
+      </section>
+
+      <!-- ============ S2 · THE DOOR, FROM INSIDE (22–44) ============ -->
+      <section id="s2" class="scene clip" data-start="22" data-duration="22" data-track-index="0">
+        <div id="s2-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="s2-peep" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#ffd98a" stop-opacity="0.9" />
+                <stop offset="1" stop-color="#ffd98a" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="1080" height="1920" fill="#15171e" />
+            <rect y="1500" width="1080" height="420" fill="#0d0e12" />
+            <rect id="s2-gap" x="780" y="380" width="0" height="1120" fill="#d9c08a" />
+            <g id="s2-door">
+              <rect x="280" y="360" width="520" height="1140" fill="#2a1d18" />
+              <rect x="300" y="380" width="480" height="1120" fill="#3b2a22" />
+              <g stroke="#2e2019" stroke-width="5" fill="none">
+                <path
+                  d="M300 520 L540 380 L780 520 L540 660 Z M300 800 L540 660 L780 800 L540 940 Z M300 1080 L540 940 L780 1080 L540 1220 Z M300 1360 L540 1220 L780 1360 L540 1500 Z"
+                />
+              </g>
+              <g fill="#7a5f45">
+                <circle cx="540" cy="660" r="9" />
+                <circle cx="540" cy="940" r="9" />
+                <circle cx="540" cy="1220" r="9" />
+                <circle cx="300" cy="800" r="9" />
+                <circle cx="780" cy="800" r="9" />
+                <circle cx="300" cy="1080" r="9" />
+                <circle cx="780" cy="1080" r="9" />
+              </g>
+              <circle cx="540" cy="760" r="16" fill="#1a1210" />
+              <circle
+                id="s2-peeplight"
+                cx="540"
+                cy="760"
+                r="34"
+                fill="url(#s2-peep)"
+                opacity="0.5"
+              />
+              <g id="s2-handle">
+                <rect x="720" y="975" width="70" height="22" rx="10" fill="#b8a27a" />
+                <circle cx="726" cy="986" r="16" fill="#9c875f" />
+              </g>
+            </g>
+            <g id="s2-chain" fill="none" stroke="#a7a7a7" stroke-width="6">
+              <circle cx="752" cy="740" r="11" />
+              <circle cx="772" cy="740" r="11" />
+              <circle cx="792" cy="740" r="11" />
+              <circle cx="812" cy="740" r="11" />
+            </g>
+            <rect
+              id="s2-floorgap"
+              x="300"
+              y="1498"
+              width="520"
+              height="8"
+              fill="#ffd98a"
+              opacity="0.8"
+            />
+            <!-- the groceries that roll in -->
+            <g id="s2-i1" opacity="0">
+              <rect x="-60" y="-170" width="120" height="170" rx="8" fill="#d9b25a" />
+              <rect x="-60" y="-170" width="120" height="70" rx="8" fill="#b8913f" />
+              <rect x="-48" y="-90" width="96" height="40" fill="#f3efe6" />
+              <text
+                x="0"
+                y="-62"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="20"
+                fill="#3a2a14"
+              >
+                ГРЕЧКА
+              </text>
+            </g>
+            <g id="s2-i2" opacity="0">
+              <rect x="-45" y="-110" width="90" height="110" rx="10" fill="#9aa0a8" />
+              <rect x="-45" y="-80" width="90" height="40" fill="#b02a2a" />
+            </g>
+            <g id="s2-i3" opacity="0">
+              <rect x="-45" y="-110" width="90" height="110" rx="10" fill="#9aa0a8" />
+              <rect x="-45" y="-80" width="90" height="40" fill="#b02a2a" />
+            </g>
+            <g id="s2-i4" opacity="0">
+              <rect x="-42" y="-90" width="84" height="90" rx="10" fill="#2f63b8" />
+              <rect x="-42" y="-64" width="84" height="34" fill="#e8ecf2" />
+            </g>
+            <g
+              id="s2-labels"
+              opacity="0"
+              class="mono"
+              font-size="26"
+              fill="#ffcf6b"
+              text-anchor="middle"
+            >
+              <text x="170" y="1652">ГРЕЧКА ½</text>
+              <text x="415" y="1728">ТУШЁНКА ×2</text>
+              <text x="650" y="1652">СГУЩЁНКА</text>
+            </g>
+          </svg>
+        </div>
+        <div id="s2-plaque-wrap" class="center-col" style="top: 560px; opacity: 0">
+          <div class="plaque"><span id="s2-floor7">7</span></div>
+        </div>
+        <div id="s2-plaque8-wrap" class="center-col" style="top: 560px; opacity: 0">
+          <div class="plaque" style="color: #c4121d">8</div>
+        </div>
+        <div
+          id="capw-5"
+          class="cap top clip"
+          data-start="25"
+          data-duration="3.3"
+          data-track-index="5"
+        >
+          <p id="cap-5"><span class="voice">Голос:</span> «Ты же голодная. Я принесла еды».</p>
+        </div>
+        <div
+          id="capw-6"
+          class="cap top clip"
+          data-start="30.3"
+          data-duration="3.6"
+          data-track-index="5"
+        >
+          <p id="cap-6">Те же продукты, что у неё на столе. Даже <em>половина пачки</em> гречки.</p>
+        </div>
+        <div
+          id="capw-7"
+          class="cap top clip"
+          data-start="35.4"
+          data-duration="3"
+          data-track-index="5"
+        >
+          <p id="cap-7">Шаги ушли наверх.</p>
+        </div>
+        <div
+          id="capw-8"
+          class="cap top clip"
+          data-start="39"
+          data-duration="4.6"
+          data-track-index="5"
+        >
+          <p id="cap-8">Туда, где <em>нет этажа</em>.</p>
+        </div>
+      </section>
+
+      <!-- ============ S3 · DAY 6 (44–49.6) ============ -->
+      <section id="s3" class="scene clip" data-start="44" data-duration="5.6" data-track-index="0">
+        <div id="s3-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <rect width="1080" height="1920" fill="#1f2535" />
+            <g fill="#232a3c">
+              <rect x="40" width="40" height="1920" />
+              <rect x="200" width="40" height="1920" />
+              <rect x="360" width="40" height="1920" />
+              <rect x="520" width="40" height="1920" />
+              <rect x="680" width="40" height="1920" />
+              <rect x="840" width="40" height="1920" />
+              <rect x="1000" width="40" height="1920" />
+            </g>
+            <g fill="none" stroke="#e2d8c6" stroke-width="12" stroke-linecap="round">
+              <path d="M370 360 L358 680" />
+              <path d="M440 364 L430 682" />
+              <path d="M512 358 L505 680" />
+              <path d="M584 364 L576 684" />
+              <path d="M330 600 L630 440" />
+              <path
+                id="s3-mark6"
+                d="M700 360 L690 680"
+                stroke-dasharray="340"
+                stroke-dashoffset="340"
+              />
+            </g>
+          </svg>
+        </div>
+        <div id="s3-day" class="center-col" style="top: 760px; opacity: 0">
+          <span
+            style="
+              display: block;
+              font-weight: 900;
+              font-size: 84px;
+              color: #f3efe6;
+              letter-spacing: 0.06em;
+            "
+            >ДЕНЬ 6</span
+          >
+        </div>
+        <div id="s3-hud" class="hud" style="top: 960px; opacity: 0">
+          <span class="hud-head mono">ДЕНЬ 6 · ЗАПАСЫ</span>
+          <div class="hud-row">
+            <span>Еда</span><span class="v" style="color: #ff6b6b">0 ДНЕЙ</span>
+          </div>
+          <div class="hud-row">
+            <span>Вода</span><span class="v" style="color: #ff6b6b">0,2 л</span>
+          </div>
+          <div class="hud-row"><span>Последний сухарь</span><span class="v">×1</span></div>
+        </div>
+      </section>
+
+      <!-- ============ S4 · THE BOY IS BACK (49.6–56) ============ -->
+      <section
+        id="s4"
+        class="scene clip"
+        data-start="49.6"
+        data-duration="6.4"
+        data-track-index="0"
+      >
+        <div id="s4-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <clipPath id="s4-vf"><rect x="0" y="150" width="1080" height="1410" /></clipPath>
+            </defs>
+            <rect width="1080" height="1920" fill="#050608" />
+            <g clip-path="url(#s4-vf)">
+              <g id="s4-world">
+                <rect x="-300" y="-200" width="1680" height="1500" fill="#666d80" />
+                <g id="s4-wins"></g>
+                <g transform="translate(540 760) scale(0.31) translate(-540 -530)">
+                  <rect x="320" y="280" width="440" height="500" fill="#20232b" />
+                  <rect x="340" y="300" width="400" height="460" fill="#4a4258" />
+                  <!-- the boy's shadow on his back wall -->
+                  <g transform="translate(70 -14)" fill="#2e2838">
+                    <path d="M420 760 C420 650 470 620 540 620 C610 620 660 650 660 760 Z" />
+                    <circle cx="540" cy="505" r="60" />
+                    <g id="s4-sharm"><rect x="600" y="600" width="36" height="150" rx="16" /></g>
+                  </g>
+                  <g id="s4-boy">
+                    <path
+                      d="M420 760 C420 650 470 620 540 620 C610 620 660 650 660 760 Z"
+                      fill="#7a2e2e"
+                    />
+                    <rect x="522" y="585" width="36" height="44" fill="#d9a888" />
+                    <circle cx="540" cy="505" r="58" fill="#e2b08f" />
+                    <path
+                      d="M482 500 C482 440 520 430 545 430 C580 430 600 450 600 490 C570 470 520 472 482 500 Z"
+                      fill="#2b241f"
+                    />
+                    <circle cx="520" cy="512" r="7" fill="#15151b" />
+                    <circle cx="562" cy="512" r="7" fill="#15151b" />
+                    <g id="s4-arm" opacity="0">
+                      <rect x="600" y="600" width="36" height="150" rx="16" fill="#7a2e2e" />
+                      <circle cx="618" cy="752" r="20" fill="#e2b08f" />
+                    </g>
+                  </g>
+                  <g id="s4-sign" opacity="0">
+                    <rect x="370" y="600" width="340" height="150" fill="#f4f1e8" />
+                    <text
+                      x="540"
+                      y="696"
+                      text-anchor="middle"
+                      font-family="Inter"
+                      font-weight="900"
+                      font-size="48"
+                      fill="#c4121d"
+                    >
+                      НЕ ВЫХОДИ
+                    </text>
+                  </g>
+                  <rect x="320" y="770" width="440" height="20" fill="#20232b" />
+                </g>
+              </g>
+              <g stroke="#ffffff" stroke-opacity="0.14" stroke-width="2">
+                <line x1="360" y1="150" x2="360" y2="1560" />
+                <line x1="720" y1="150" x2="720" y2="1560" />
+                <line x1="0" y1="620" x2="1080" y2="620" />
+                <line x1="0" y1="1090" x2="1080" y2="1090" />
+              </g>
+              <g id="s4-af" opacity="0" fill="none" stroke="#ffd23f" stroke-width="7">
+                <path d="M170 400 L170 330 L240 330" />
+                <path d="M840 330 L910 330 L910 400" />
+                <path d="M170 1120 L170 1190 L240 1190" />
+                <path d="M840 1190 L910 1190 L910 1120" />
+              </g>
+            </g>
+            <rect width="1080" height="150" fill="#000" opacity="0.88" />
+            <circle cx="90" cy="92" r="12" fill="#e0303a" />
+            <text data-layout-ignore x="120" y="102" class="mono" font-size="28" fill="#e6e0d4">
+              КАМЕРА
+            </text>
+            <text
+              data-layout-ignore
+              x="990"
+              y="102"
+              text-anchor="end"
+              class="mono"
+              font-size="28"
+              fill="#e6e0d4"
+            >
+              HD · 30
+            </text>
+            <rect y="1560" width="1080" height="360" fill="#000" opacity="0.92" />
+            <text
+              data-layout-ignore
+              x="400"
+              y="1640"
+              text-anchor="middle"
+              class="mono"
+              font-size="28"
+              fill="#8b8f99"
+            >
+              ВИДЕО
+            </text>
+            <text
+              data-layout-ignore
+              x="540"
+              y="1640"
+              text-anchor="middle"
+              class="mono"
+              font-size="28"
+              fill="#ffd23f"
+            >
+              ФОТО
+            </text>
+            <text
+              data-layout-ignore
+              x="680"
+              y="1640"
+              text-anchor="middle"
+              class="mono"
+              font-size="28"
+              fill="#8b8f99"
+            >
+              ПОРТРЕТ
+            </text>
+            <circle cx="540" cy="1780" r="76" fill="none" stroke="#f3efe6" stroke-width="8" />
+            <circle cx="540" cy="1780" r="60" fill="#f3efe6" />
+            <rect x="140" y="1735" width="90" height="90" rx="14" fill="#2c2f36" />
+            <circle cx="895" cy="1780" r="44" fill="#2c2f36" />
+            <rect x="465" y="1468" width="150" height="66" rx="33" fill="#000" opacity="0.6" />
+            <text
+              id="s4-zoom"
+              data-layout-ignore
+              x="540"
+              y="1512"
+              text-anchor="middle"
+              class="mono"
+              font-size="32"
+              fill="#ffd23f"
+            >
+              3.0×
+            </text>
+          </svg>
+        </div>
+        <div
+          id="capw-9"
+          class="cap top clip"
+          style="top: 185px"
+          data-start="50"
+          data-duration="2.9"
+          data-track-index="5"
+        >
+          <p id="cap-9">Мальчик вернулся.</p>
+        </div>
+        <div
+          id="capw-10"
+          class="cap top clip"
+          style="top: 185px"
+          data-start="53.4"
+          data-duration="2.5"
+          data-track-index="5"
+        >
+          <p id="cap-10">Но его тень махала <em>позже</em>.</p>
+        </div>
+      </section>
+
+      <!-- ============ S5 · REMAINING: 1 (56–63.5) ============ -->
+      <section id="s5" class="scene clip" data-start="56" data-duration="7.5" data-track-index="0">
+        <div id="s5-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="s5-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#ffd6d6" stop-opacity="0.45" />
+                <stop offset="1" stop-color="#ffd6d6" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="1080" height="1920" fill="#06070b" />
+            <ellipse cx="540" cy="900" rx="620" ry="760" fill="url(#s5-glow)" />
+            <rect x="240" y="300" width="600" height="1160" rx="70" fill="#14161d" />
+            <rect x="268" y="332" width="544" height="1096" rx="46" fill="#140405" />
+            <rect x="268" y="332" width="544" height="130" rx="46" fill="#d81f2a" />
+            <rect x="268" y="420" width="544" height="42" fill="#d81f2a" />
+            <text x="540" y="420" text-anchor="middle" class="mono" font-size="32" fill="#fff">
+              ОПОВЕЩЕНИЕ
+            </text>
+            <g id="s5-msg1">
+              <text
+                x="540"
+                y="640"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="72"
+                fill="#f3efe6"
+              >
+                ОСТАЛОСЬ
+              </text>
+            </g>
+            <g id="s5-msg2" opacity="0">
+              <text
+                x="540"
+                y="760"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="64"
+                fill="#f3efe6"
+              >
+                МОЖНО
+              </text>
+              <text
+                x="540"
+                y="840"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="64"
+                fill="#f3efe6"
+              >
+                ВЫХОДИТЬ
+              </text>
+              <text
+                x="540"
+                y="960"
+                text-anchor="middle"
+                font-family="Inter"
+                font-weight="900"
+                font-size="52"
+                fill="#ff4b4b"
+              >
+                ВАС ЖДУТ
+              </text>
+            </g>
+            <g id="s5-bars" opacity="0">
+              <rect x="268" y="560" width="544" height="26" fill="#3fd2ff" />
+              <rect x="268" y="820" width="544" height="12" fill="#ff2d3a" />
+              <rect x="268" y="1080" width="544" height="44" fill="#ffffff" />
+            </g>
+          </svg>
+        </div>
+        <div id="s5-num-wrap" class="center-col" style="top: 720px">
+          <span
+            id="s5-num"
+            class="mono"
+            style="
+              display: block;
+              width: 540px;
+              text-align: center;
+              font-size: 84px;
+              color: #ff4b4b;
+            "
+            >3 902 114</span
+          >
+        </div>
+      </section>
+
+      <!-- ============ S6 · EVERYONE IN THE YARD (63.5–70) ============ -->
+      <section
+        id="s6"
+        class="scene clip"
+        data-start="63.5"
+        data-duration="6.5"
+        data-track-index="0"
+      >
+        <div id="s6-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <rect width="1080" height="1920" fill="#2a2e3a" />
+            <rect y="0" width="1080" height="560" fill="#3a3f4f" />
+            <g id="s6-wins" fill="#252a36"></g>
+            <rect y="560" width="1080" height="1360" fill="#5e5c56" />
+            <g id="s6-crowd"></g>
+            <rect id="s6-tint" width="1080" height="1920" fill="#2a0a14" opacity="0.25" />
+            <g fill="#14161d">
+              <rect width="1080" height="60" />
+              <rect width="50" height="1920" />
+              <rect x="1030" width="50" height="1920" />
+              <rect y="1760" width="1080" height="160" />
+            </g>
+          </svg>
+        </div>
+        <div
+          id="capw-11"
+          class="cap top clip"
+          data-start="63.8"
+          data-duration="2.6"
+          data-track-index="5"
+        >
+          <p id="cap-11">Во дворе стояли все.</p>
+        </div>
+        <div
+          id="capw-12"
+          class="cap top clip"
+          data-start="66.8"
+          data-duration="3"
+          data-track-index="5"
+        >
+          <p id="cap-12">И все смотрели на её окно.</p>
+        </div>
+      </section>
+
+      <!-- ============ S7 · THE REFLECTION (70–84) ============ -->
+      <section id="s7" class="scene clip" data-start="70" data-duration="14" data-track-index="0">
+        <div id="s7-stage" class="stage">
+          <svg viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="s7-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#cfeaff" stop-opacity="0.5" />
+                <stop offset="1" stop-color="#cfeaff" stop-opacity="0" />
+              </radialGradient>
+              <linearGradient id="s7-gloss" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0.07" />
+                <stop offset="0.45" stop-color="#ffffff" stop-opacity="0" />
+              </linearGradient>
+              <clipPath id="s7-screen">
+                <rect x="248" y="292" width="584" height="1196" rx="46" />
+              </clipPath>
+            </defs>
+            <rect width="1080" height="1920" fill="#06070b" />
+            <!-- her face in the phone light -->
+            <g id="s7-face">
+              <ellipse id="s7-glowel" cx="540" cy="1100" rx="600" ry="700" fill="url(#s7-glow)" />
+              <path
+                d="M260 760 C260 470 380 330 540 330 C700 330 820 470 820 760 L840 1300 L240 1300 Z"
+                fill="#241a1a"
+              />
+              <ellipse cx="540" cy="820" rx="230" ry="280" fill="#e7b896" />
+              <path
+                d="M310 760 C320 520 420 470 545 470 C670 470 760 530 770 740 C690 640 560 610 430 650 C380 680 340 710 310 760 Z"
+                fill="#241a1a"
+              />
+              <ellipse cx="460" cy="840" rx="28" ry="32" fill="#f6efe6" />
+              <ellipse cx="620" cy="840" rx="28" ry="32" fill="#f6efe6" />
+              <circle cx="460" cy="846" r="14" fill="#15151b" />
+              <circle cx="620" cy="846" r="14" fill="#15151b" />
+              <path
+                d="M505 980 Q540 970 575 980"
+                stroke="#9b6a55"
+                stroke-width="7"
+                fill="none"
+                stroke-linecap="round"
+              />
+              <rect x="0" y="1300" width="1080" height="620" fill="#3f6b6a" />
+              <rect id="s7-dark" width="1080" height="1920" fill="#06070b" opacity="0" />
+            </g>
+            <!-- the black screen as a mirror -->
+            <g id="s7-mirror" opacity="0">
+              <rect x="220" y="260" width="640" height="1260" rx="70" fill="#14161d" />
+              <rect x="248" y="292" width="584" height="1196" rx="46" fill="#07080b" />
+              <g clip-path="url(#s7-screen)">
+                <g id="s7-thing" opacity="0" fill="#323848">
+                  <rect x="640" y="430" width="60" height="420" rx="26" />
+                  <path d="M600 1500 L610 820 C610 760 740 760 740 820 L760 1500 Z" />
+                  <g id="s7-thinghead"><ellipse cx="670" cy="400" rx="46" ry="62" /></g>
+                </g>
+                <g>
+                  <path
+                    d="M380 1500 C380 1300 450 1240 540 1240 C630 1240 700 1300 700 1500 Z"
+                    fill="#151924"
+                  />
+                  <ellipse cx="540" cy="1040" rx="150" ry="180" fill="#262c3a" />
+                  <path
+                    d="M390 1010 C390 860 460 820 540 820 C630 820 690 870 692 1000 C640 930 560 915 470 940 C430 960 405 985 390 1010 Z"
+                    fill="#161a24"
+                  />
+                </g>
+                <rect x="248" y="292" width="584" height="1196" fill="url(#s7-gloss)" />
+              </g>
+            </g>
+            <rect id="s7-black" width="1080" height="1920" fill="#000" opacity="0" />
+          </svg>
+        </div>
+        <div
+          id="capw-13"
+          class="cap center clip"
+          data-start="82"
+          data-duration="2"
+          data-track-index="5"
+        >
+          <p id="cap-13">Стучали <em>изнутри</em> квартиры.</p>
+        </div>
+      </section>
+
+      <!-- ============ S8 · END CARD (84–90) ============ -->
+      <section id="s8" class="scene clip" data-start="84" data-duration="6" data-track-index="0">
+        <div class="title-wrap" style="top: 700px">
+          <span id="s8-kicker" class="kicker" style="opacity: 0">СЕРИЯ 3</span>
+          <div id="s8-title" class="glitch-title" style="opacity: 0">
+            <span class="c" data-layout-ignore aria-hidden="true">СИГНАЛ</span>
+            <span class="r" data-layout-ignore aria-hidden="true">СИГНАЛ</span>
+            <span class="w">СИГНАЛ</span>
+          </div>
+          <span id="s8-sub" class="sub" style="opacity: 0">«Открой»</span>
+          <span id="s8-next" class="next" style="opacity: 0">КОНЕЦ?</span>
+        </div>
+      </section>
+
+      <div id="vignette"></div>
+      <svg id="grain" viewBox="0 0 1080 1920" preserveAspectRatio="none">
+        <filter id="grain-f">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="1080" height="1920" filter="url(#grain-f)" />
+      </svg>
+      <div id="scanlines"></div>
+    </div>
+
+    <script>
+      const SVGNS = "http://www.w3.org/2000/svg";
+      const el = (tag, attrs, parent) => {
+        const n = document.createElementNS(SVGNS, tag);
+        for (const k in attrs) n.setAttribute(k, attrs[k]);
+        parent.appendChild(n);
+        return n;
+      };
+      const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+      // Opposite building through the camera (same grid as episode 2).
+      const s4wins = document.getElementById("s4-wins");
+      for (let cy = 130; cy <= 1180; cy += 210) {
+        for (let cx = -60; cx <= 1140; cx += 200) {
+          if (cx === 540 && cy === 760) continue;
+          el("rect", { x: cx - 68, y: cy - 78, width: 136, height: 155, fill: "#20232b" }, s4wins);
+          el("rect", { x: cx - 62, y: cy - 72, width: 124, height: 143, fill: "#2c3140" }, s4wins);
+        }
+      }
+      const s6wins = document.getElementById("s6-wins");
+      for (let x = 90; x < 1000; x += 150) {
+        for (let y = 100; y < 500; y += 140) el("rect", { x, y, width: 80, height: 92 }, s6wins);
+      }
+
+      // The crowd in the yard: everyone who went outside, looking up.
+      const crowd = document.getElementById("s6-crowd");
+      const people = [
+        { x: 540, y: 1180, body: "#7a4a5a", hair: "#4a3226", bun: true },
+        { x: 360, y: 1130, body: "#3a3a2c", cap: "#2b2e3a" },
+        { x: 720, y: 1140, body: "#7a2e2e", hair: "#2b241f", small: true },
+        { x: 250, y: 1320, body: "#2f4f7a", hair: "#3a2a20" },
+        { x: 830, y: 1320, body: "#4b5262", hair: "#1f1a18" },
+        { x: 450, y: 1400, body: "#5a5a66", hair: "#2a2a2a" },
+        { x: 640, y: 1420, body: "#6a5a48", hair: "#3a2a20" },
+        { x: 150, y: 1540, body: "#444b58", hair: "#222" },
+        { x: 930, y: 1540, body: "#5b4a52", hair: "#2a1f1f" },
+        { x: 380, y: 1600, body: "#3d4a3f", hair: "#1f1a18" },
+        { x: 700, y: 1620, body: "#4a4552", hair: "#2a2a2a" },
+        { x: 540, y: 980, body: "#4a4f5c", hair: "#222", small: true },
+        { x: 230, y: 1010, body: "#55505a", hair: "#2a1f1f", small: true },
+        { x: 850, y: 1000, body: "#4d5560", hair: "#1f1a18", small: true },
+      ];
+      people.forEach((p) => {
+        const s = p.small ? 0.8 : 1;
+        const g = el("g", { transform: `translate(${p.x} ${p.y}) scale(${s})` }, crowd);
+        el("ellipse", { cx: 0, cy: 6, rx: 60, ry: 14, fill: "#000", opacity: 0.25 }, g);
+        el(
+          "path",
+          { d: "M-50 0 C-50 -110 -40 -150 0 -150 C40 -150 50 -110 50 0 Z", fill: p.body },
+          g,
+        );
+        const h = el("g", { class: "head" }, g);
+        el("circle", { cx: 0, cy: -190, r: 44, fill: "#d9a888" }, h);
+        el(
+          "path",
+          {
+            d: "M-44 -196 C-44 -240 44 -240 44 -196 C24 -220 -24 -220 -44 -196 Z",
+            fill: p.cap || p.hair,
+          },
+          h,
+        );
+        if (p.bun) el("circle", { cx: 0, cy: -240, r: 20, fill: p.hair }, h);
+        if (p.cap) el("rect", { x: -10, y: -214, width: 62, height: 10, rx: 4, fill: p.cap }, h);
+        el("circle", { cx: -15, cy: -200, r: 6, fill: "#15151b" }, h);
+        el("circle", { cx: 15, cy: -200, r: 6, fill: "#15151b" }, h);
+      });
+
+      const tl = gsap.timeline({ paused: true });
+
+      // S1 peephole: mom, the question, the frozen counter, the shadow
+      tl.fromTo("#s1-stage", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.1);
+      [0.4, 1.1, 1.8].forEach((t0) => {
+        tl.fromTo("#pp-cam", { x: -6 }, { x: 0, duration: 0.2, ease: "power2.out" }, t0);
+      });
+      tl.fromTo(
+        "#pp-cam",
+        { scale: 1 },
+        { scale: 1.12, duration: 22, ease: "none", svgOrigin: "540 860" },
+        0,
+      );
+      tl.fromTo(
+        "#s1-title",
+        { opacity: 0, scale: 1.12 },
+        { opacity: 1, scale: 1, duration: 0.25, ease: "power4.out" },
+        3.2,
+      );
+      tl.fromTo("#s1-title .r", { x: -14 }, { x: 0, duration: 1.2, ease: "power2.out" }, 3.2);
+      tl.fromTo("#s1-title .c", { x: 14 }, { x: 0, duration: 1.2, ease: "power2.out" }, 3.2);
+      tl.fromTo(
+        "#s1-kicker",
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+        3.6,
+      );
+      tl.to("#s1-title, #s1-kicker", { opacity: 0, duration: 0.5 }, 7.4);
+      tl.fromTo("#s1-hud", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 8.4);
+      const c1 = document.getElementById("s1-count");
+      const cnt1 = { v: 0 };
+      tl.fromTo(
+        cnt1,
+        { v: 0 },
+        {
+          v: 28,
+          duration: 7,
+          ease: "none",
+          onUpdate: () => (c1.textContent = fmt(3902114 - Math.floor(cnt1.v) * 7)),
+        },
+        8.4,
+      );
+      [16.0, 17.0, 18.0, 19.0, 20.0, 21.0].forEach((t0) => {
+        tl.to("#s1-count", { opacity: 0.25, duration: 0.05 }, t0);
+        tl.to("#s1-count", { opacity: 1, duration: 0.05 }, t0 + 0.45);
+      });
+      tl.fromTo(
+        "#pp-shhead",
+        { rotation: 0 },
+        { rotation: 38, duration: 2.6, ease: "power2.inOut", svgOrigin: "750 570" },
+        18.6,
+      );
+      tl.fromTo(
+        "#pp-shadow",
+        { scaleY: 1 },
+        { scaleY: 1.12, duration: 2.6, ease: "power2.inOut", svgOrigin: "750 1310" },
+        18.6,
+      );
+      tl.to("#s1-stage, #s1-hud", { opacity: 0, duration: 0.3 }, 21.7);
+
+      // S2 the door: handle, chain, groceries, footsteps up, 7 becomes 8
+      tl.fromTo("#s2-stage", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 22.0);
+      tl.fromTo(
+        "#s2-handle",
+        { rotation: 0 },
+        { rotation: 28, duration: 1.8, ease: "power1.inOut", svgOrigin: "726 986" },
+        22.5,
+      );
+      tl.fromTo(
+        "#s2-gap",
+        { attr: { width: 0 } },
+        { attr: { width: 40 }, duration: 0.25, ease: "power2.out" },
+        24.4,
+      );
+      tl.fromTo("#s2-door", { x: 0 }, { x: -6, duration: 0.25, ease: "power2.out" }, 24.4);
+      tl.fromTo(
+        "#s2-chain",
+        { x: 0, scaleX: 1 },
+        { x: 0, scaleX: 1.15, duration: 0.25, ease: "power2.out", svgOrigin: "752 740" },
+        24.4,
+      );
+      const items = [
+        ["#s2-i1", 170, 1600],
+        ["#s2-i2", 370, 1660],
+        ["#s2-i3", 460, 1680],
+        ["#s2-i4", 650, 1600],
+      ];
+      items.forEach(([sel, x, y], i) => {
+        const t0 = 28.6 + i * 0.35;
+        tl.set(sel, { opacity: 1 }, t0);
+        tl.fromTo(
+          sel,
+          { x: 840, y: 1560, rotation: 20 },
+          { x, y, rotation: 0, duration: 0.7, ease: "power2.out" },
+          t0,
+        );
+      });
+      tl.fromTo("#s2-labels", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 30.2);
+      tl.to("#s2-gap", { attr: { width: 0 }, duration: 0.2, ease: "power2.in" }, 34.0);
+      tl.to("#s2-door", { x: 0, duration: 0.2, ease: "power2.in" }, 34.0);
+      tl.to("#s2-chain", { scaleX: 1, duration: 0.2, svgOrigin: "752 740" }, 34.0);
+      tl.to("#s2-handle", { rotation: 0, duration: 0.3, svgOrigin: "726 986" }, 34.0);
+      tl.fromTo(
+        "#s2-stage",
+        { scale: 1 },
+        { scale: 1.06, duration: 22, ease: "none", transformOrigin: "50% 50%" },
+        22.0,
+      );
+      tl.fromTo("#s2-plaque-wrap", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 36.0);
+      tl.set("#s2-plaque-wrap", { opacity: 0 }, 38.5);
+      tl.set("#s2-plaque8-wrap", { opacity: 1 }, 38.5);
+      tl.to("#s2-plaque8-wrap", { opacity: 0.3, duration: 0.05 }, 38.6);
+      tl.to("#s2-plaque8-wrap", { opacity: 1, duration: 0.05 }, 38.7);
+      tl.to("#s2-plaque8-wrap", { opacity: 0, duration: 0.5 }, 42.6);
+      [40.2, 41.2, 42.2].forEach((t0, i) => {
+        tl.to("#s2-floorgap, #s2-peeplight", { opacity: [0.55, 0.3, 0][i], duration: 0.05 }, t0);
+      });
+      tl.to("#s2-stage", { opacity: 0, duration: 0.4 }, 43.5);
+
+      // S3 day 6
+      tl.fromTo("#s3-stage", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 44.0);
+      tl.to("#s3-mark6", { strokeDashoffset: 0, duration: 0.45, ease: "power2.in" }, 44.6);
+      tl.fromTo("#s3-day", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4 }, 45.2);
+      tl.fromTo(
+        "#s3-hud",
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" },
+        46.4,
+      );
+      tl.to("#s3-stage, #s3-day, #s3-hud", { opacity: 0, duration: 0.25 }, 49.3);
+
+      // S4 the boy is back
+      tl.fromTo("#s4-stage", { opacity: 0 }, { opacity: 1, duration: 0.25 }, 49.6);
+      const w4 = document.getElementById("s4-world");
+      const z4 = document.getElementById("s4-zoom");
+      const zE = gsap.parseEase("power2.out");
+      const s4clock = { t: 49.6 };
+      tl.fromTo(
+        s4clock,
+        { t: 49.6 },
+        {
+          t: 56,
+          duration: 6.4,
+          ease: "none",
+          onUpdate: () => {
+            const z = 3 + 2.6 * zE(Math.min(1, Math.max(0, (s4clock.t - 49.6) / 0.8)));
+            w4.setAttribute("transform", `translate(540 760) scale(${z}) translate(-540 -760)`);
+            z4.textContent = `${z.toFixed(1)}×`;
+          },
+        },
+        49.6,
+      );
+      tl.fromTo("#s4-af", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 50.4);
+      tl.fromTo("#s4-sign", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 50.6);
+      tl.to("#s4-sign", { opacity: 0, duration: 0.25 }, 52.9);
+      tl.set("#s4-arm", { opacity: 1 }, 53.1);
+      const wave = (sel, t0) => {
+        tl.fromTo(
+          sel,
+          { rotation: 0 },
+          { rotation: -150, duration: 0.3, ease: "power2.out", svgOrigin: "618 610" },
+          t0,
+        );
+        tl.to(
+          sel,
+          {
+            rotation: -115,
+            duration: 0.3,
+            yoyo: true,
+            repeat: 5,
+            ease: "sine.inOut",
+            svgOrigin: "618 610",
+          },
+          t0 + 0.3,
+        );
+      };
+      wave("#s4-arm", 53.1);
+      wave("#s4-sharm", 53.75);
+      tl.to("#s4-stage", { opacity: 0, duration: 0.25 }, 55.75);
+
+      // S5 the countdown to 1
+      tl.fromTo("#s5-stage, #s5-num-wrap", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 56.0);
+      const n5 = document.getElementById("s5-num");
+      const cnt5 = { p: 0 };
+      tl.fromTo(
+        cnt5,
+        { p: 0 },
+        {
+          p: 1,
+          duration: 4.6,
+          ease: "power4.in",
+          onUpdate: () => {
+            const v = Math.max(1, Math.round(3902114 * (1 - cnt5.p)));
+            n5.textContent = fmt(v);
+          },
+        },
+        56.2,
+      );
+      tl.fromTo(
+        "#s5-num",
+        { scale: 1 },
+        { scale: 2.4, duration: 0.3, ease: "power3.out", transformOrigin: "50% 50%" },
+        60.8,
+      );
+      tl.set("#s5-bars", { opacity: 1 }, 61.2);
+      tl.set("#s5-bars", { opacity: 0 }, 61.32);
+      tl.set("#s5-num-wrap, #s5-msg1", { opacity: 0 }, 61.5);
+      tl.set("#s5-msg2", { opacity: 1 }, 61.5);
+      tl.set("#s5-bars", { opacity: 1 }, 61.5);
+      tl.set("#s5-bars", { opacity: 0 }, 61.6);
+      tl.to("#s5-stage", { opacity: 0, duration: 0.2 }, 63.3);
+
+      // S6 everyone in the yard
+      tl.fromTo("#s6-stage", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 63.5);
+      tl.fromTo(
+        "#s6-stage",
+        { scale: 1.12 },
+        { scale: 1.0, duration: 6.5, ease: "power1.out", transformOrigin: "50% 60%" },
+        63.5,
+      );
+      document.querySelectorAll("#s6-crowd .head").forEach((h) => {
+        tl.to(h, { rotation: -24, duration: 0.9, ease: "power2.inOut", svgOrigin: "0 -150" }, 66.5);
+      });
+      tl.to("#s6-stage", { opacity: 0, duration: 0.3 }, 69.7);
+
+      // S7 the reflection
+      tl.fromTo("#s7-stage", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 70.0);
+      tl.fromTo(
+        "#s7-face",
+        { scale: 1 },
+        { scale: 1.06, duration: 3, ease: "none", svgOrigin: "540 900" },
+        70.0,
+      );
+      tl.set("#s7-dark", { opacity: 0.92 }, 73.0);
+      tl.set("#s7-glowel", { opacity: 0 }, 73.0);
+      tl.to("#s7-face", { opacity: 0, duration: 0.6 }, 73.2);
+      tl.to("#s7-mirror", { opacity: 1, duration: 1.0 }, 73.4);
+      tl.fromTo(
+        "#s7-mirror",
+        { scale: 1 },
+        { scale: 1.1, duration: 10.6, ease: "power1.in", svgOrigin: "540 900" },
+        73.4,
+      );
+      tl.to("#s7-thing", { opacity: 1, duration: 2.2, ease: "power1.in" }, 74.6);
+      tl.to(
+        "#s7-thinghead",
+        { rotation: 34, duration: 2.2, ease: "power2.inOut", svgOrigin: "670 450" },
+        77.2,
+      );
+      [80.2, 80.9, 81.6].forEach((t0) => {
+        tl.fromTo("#s7-mirror", { x: -5 }, { x: 0, duration: 0.18, ease: "power2.out" }, t0);
+      });
+      tl.fromTo("#cap-13", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 82.0);
+      tl.set("#s7-black", { opacity: 1 }, 84.0);
+
+      // S8 end card
+      tl.fromTo(
+        "#s8-kicker",
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+        84.5,
+      );
+      tl.fromTo(
+        "#s8-title",
+        { opacity: 0, scale: 1.15 },
+        { opacity: 1, scale: 1, duration: 0.3, ease: "power4.out" },
+        84.5,
+      );
+      tl.fromTo("#s8-title .r", { x: -16 }, { x: 0, duration: 1.4, ease: "power2.out" }, 84.5);
+      tl.fromTo("#s8-title .c", { x: 16 }, { x: 0, duration: 1.4, ease: "power2.out" }, 84.5);
+      tl.fromTo(
+        "#s8-sub",
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
+        85.2,
+      );
+      tl.fromTo(
+        "#s8-next",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+        86.4,
+      );
+      tl.to("#s8-title .r", { x: -10, duration: 0.05 }, 87.8);
+      tl.to("#s8-title .r", { x: 0, duration: 0.05 }, 87.9);
+      tl.to(
+        "#s8-kicker, #s8-title, #s8-sub, #s8-next",
+        { opacity: 0, duration: 0.8, ease: "power1.in" },
+        89.1,
+      );
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
